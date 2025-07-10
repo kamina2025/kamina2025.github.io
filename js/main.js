@@ -1,11 +1,13 @@
-import WebTorrent from 'webtorrent';
+// ¡Esta línea es la que DEBE ELIMINARSE!
+// import WebTorrent from 'webtorrent'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     const magnetLinkInput = document.getElementById('magnetLinkInput');
     const downloadButton = document.getElementById('downloadButton');
     const outputDiv = document.getElementById('output');
 
-    const client = new WebTorrent();
+    // La variable WebTorrent ahora está disponible porque la cargaste desde el CDN en el HTML
+    const client = new WebTorrent(); 
 
     downloadButton.addEventListener('click', () => {
         const magnetURI = magnetLinkInput.value.trim();
@@ -33,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             torrent.files.forEach((file) => {
                 if (file.name.endsWith('.mp4') || file.name.endsWith('.webm') || file.name.endsWith('.ogg')) {
-                    // Crea un nuevo elemento <video>
                     const videoElement = document.createElement('video');
                     videoElement.controls = true;
                     videoElement.autoplay = true;
@@ -41,10 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     videoElement.style.display = 'block';
                     videoElement.style.marginTop = '15px';
 
-                    // Añade el elemento <video> al div de salida (outputDiv)
                     outputDiv.appendChild(videoElement);
-
-                    // Ahora, renderiza el archivo en el nuevo elemento <video>
                     file.renderTo(videoElement);
                     outputDiv.innerHTML += `<p>Reproduciendo: ${file.name}</p>`;
                 } else {
