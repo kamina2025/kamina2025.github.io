@@ -15,6 +15,6 @@
     "parcel": "^2.x.x"
   },
   "dependencies": {
-    "webtorrent": "^1.x.x"
+    "webtorrent": "^1.9.0"
   }
 }
