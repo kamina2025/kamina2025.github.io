@@ -1,0 +1,20 @@
+{
+  "name": "kamina2025.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "browser": {
+    "webtorrent": "./node_modules/webtorrent/webtorrent.min.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.x.x"
+  },
+  "dependencies": {
+    "webtorrent": "^1.x.x"
+  }
+}
