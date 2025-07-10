@@ -1,12 +1,15 @@
 // js/main.js
 
+// Importa WebTorrent como un módulo desde el CDN esm.sh
+import WebTorrent from 'https://esm.sh/webtorrent';
+
 document.addEventListener('DOMContentLoaded', () => {
     const magnetLinkInput = document.getElementById('magnetLinkInput');
     const downloadButton = document.getElementById('downloadButton');
     const outputDiv = document.getElementById('output');
 
     // 1. Crea una nueva instancia del cliente WebTorrent
-    // Esto se ejecutará en el navegador del usuario
+    // Ahora 'WebTorrent' se importa correctamente gracias a la línea de arriba
     const client = new WebTorrent();
 
     downloadButton.addEventListener('click', () => {
