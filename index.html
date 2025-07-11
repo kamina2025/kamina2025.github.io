@@ -2,139 +2,68 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Mi Reproductor WebTorrent Simple</title>
+    <title>Mis Series - kamina2025</title>
     <style>
-      /* ... (mantén tus estilos) ... */
-      body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f0f0f0; }
-      #player-container {
-        width: 80%;
-        max-width: 800px;
-        margin: 20px auto;
-        border: 1px solid #ccc;
-        background-color: #000;
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        background-color: #f0f0f0;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-height: 400px;
-        color: white;
-        font-size: 1.2em;
+        min-height: 100vh;
       }
-      #player-container video {
-        max-width: 100%;
-        max-height: 100%;
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
       }
-      input[type="text"] {
-        width: 70%;
-        padding: 8px;
+      .series-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin: 15px;
+        width: 300px;
+        text-align: left;
+      }
+      .series-card h2 {
+        color: #007bff;
+        margin-top: 0;
         margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
       }
-      button {
-        padding: 8px 15px;
-        cursor: pointer;
-        background-color: #007bff;
+      .series-card p {
+        color: #555;
+        margin-bottom: 20px;
+      }
+      .series-card button {
+        padding: 10px 20px;
+        background-color: #28a745;
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background-color 0.3s ease;
       }
-      button:hover {
-        background-color: #0056b3;
-      }
-      #status {
-        margin-top: 10px;
-        font-size: 0.9em;
-        color: #555;
+      .series-card button:hover {
+        background-color: #218838;
       }
     </style>
   </head>
   <body>
-    <h1>Reproductor WebTorrent Simple</h1>
-    <input type="text" id="torrent-magnet-link" placeholder="Pega tu enlace Magnet aquí">
-    <button id="load-torrent-btn">Cargar Torrent</button>
+    <h1>¡Bienvenido a Mis Series!</h1>
 
-    <div id="player-container">
-      Cargando video...
+    <div class="series-card">
+      <h2>Vigilante: Boku no Hero Academia ILLEGALS</h2>
+      <p>Capítulo 1 - Sub Español HD</p>
+      <button onclick="location.href='player.html'">Ver Capítulo 1</button>
     </div>
-    <div id="status"></div>
 
-    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+    <!-- Puedes añadir más series-card aquí para otros capítulos o series -->
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          const magnetLinkInput = document.getElementById('torrent-magnet-link');
-          const loadTorrentBtn = document.getElementById('load-torrent-btn');
-          const playerContainer = document.getElementById('player-container');
-          const statusDiv = document.getElementById('status');
-
-          if (typeof WebTorrent === 'undefined') {
-              console.error('WebTorrent no está definido. El script no se cargó correctamente.');
-              statusDiv.textContent = 'Error: El reproductor no se pudo cargar. Revisa la consola del navegador.';
-              return;
-          }
-
-          // *** MODIFICACIÓN AQUÍ: Añadir la configuración ICE ***
-          const client = new WebTorrent({
-              tracker: {
-                  // Puedes dejar esta propiedad vacía o añadir trackers si los conoces
-              },
-              // Servidores STUN/TURN públicos y conocidos por funcionar
-              iceServers: [
-                  { urls: 'stun:stun.l.google.com:19302' },
-                  { urls: 'stun:stun1.l.google.com:19302' },
-                  { urls: 'stun:stun2.l.google.com:19302' },
-                  { urls: 'stun:stun3.l.google.com:19302' },
-                  { urls: 'stun:stun4.l.google.com:19302' }
-              ]
-          });
-          // *** FIN MODIFICACIÓN ***
-
-          client.on('error', (err) => {
-              console.error('WebTorrent Error:', err);
-              statusDiv.textContent = `Error: ${err.message || err}`;
-          });
-
-          loadTorrentBtn.addEventListener('click', () => {
-              const magnetLink = magnetLinkInput.value.trim();
-              if (magnetLink) {
-                  playerContainer.innerHTML = 'Cargando metadatos...';
-                  statusDiv.textContent = 'Iniciando descarga...';
-
-                  client.add(magnetLink, (torrent) => {
-                      console.log('Cliente descargando:', torrent.infoHash);
-                      statusDiv.textContent = `Descargando: ${torrent.name}`;
-
-                      const file = torrent.files.find((f) => {
-                          return f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.name.endsWith('.mkv');
-                      });
-
-                      if (file) {
-                          playerContainer.innerHTML = '';
-                          file.appendTo(playerContainer, (err, elem) => {
-                              if (err) {
-                                  console.error('Error al añadir archivo al reproductor:', err);
-                                  statusDiv.textContent = `Error de reproducción: ${err.message}`;
-                                  return;
-                              }
-                              console.log('Video listo para reproducir:', file.name);
-                              statusDiv.textContent = `Reproduciendo: ${file.name}`;
-                              elem.controls = true;
-                          });
-
-                          torrent.on('download', () => {
-                              const progress = (torrent.progress * 100).toFixed(1);
-                              statusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
-                          });
-                      } else {
-                          playerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
-                          statusDiv.textContent = 'Error: No se encontró video.';
-                      }
-                  });
-              } else {
-                  alert('Por favor, introduce un enlace Magnet.');
-              }
-          });
-      });
-    </script>
   </body>
 </html>
