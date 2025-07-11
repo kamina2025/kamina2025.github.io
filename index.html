@@ -2,65 +2,117 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Mi Reproductor WebTorrent</title>
-    <!-- Carga el CSS del reproductor desde jsDelivr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/webtorrent-player@1.2.7/lib/webtorrent-player.css">
+    <title>Mi Reproductor WebTorrent Simple</title>
     <style>
-      /* Tus estilos personalizados (si los tienes) */
-      body { font-family: sans-serif; margin: 20px; text-align: center; }
-      #video-player-container {
-        width: 80%; /* O el tamaño que quieras */
+      body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f0f0f0; }
+      #player-container {
+        width: 80%;
         max-width: 800px;
         margin: 20px auto;
         border: 1px solid #ccc;
-        min-height: 400px; /* Para que se vea algo antes de cargar el video */
         background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+        color: white;
+        font-size: 1.2em;
+      }
+      #player-container video {
+        max-width: 100%;
+        max-height: 100%;
       }
       input[type="text"] {
         width: 70%;
         padding: 8px;
         margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
       button {
         padding: 8px 15px;
         cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #status {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #555;
       }
     </style>
   </head>
   <body>
-    <h1>Reproductor WebTorrent</h1>
+    <h1>Reproductor WebTorrent Simple</h1>
     <input type="text" id="torrent-magnet-link" placeholder="Pega tu enlace Magnet aquí">
     <button id="load-torrent-btn">Cargar Torrent</button>
 
-    <!-- Contenedor donde WebTorrentPlayer montará el video -->
-    <div id="video-player-container"></div>
+    <div id="player-container">
+      Cargando video...
+    </div>
+    <div id="status"></div>
 
-    <!-- Carga el JavaScript del reproductor desde jsDelivr -->
-    <script src="https://cdn.jsdelivr.net/npm/webtorrent-player@1.2.7/lib/webtorrent-player.js"></script>
+    <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
+    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
 
-    <!-- Tu script personalizado para usar el reproductor -->
+    <!-- Tu script personalizado para usar WebTorrent -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
           const magnetLinkInput = document.getElementById('torrent-magnet-link');
           const loadTorrentBtn = document.getElementById('load-torrent-btn');
-          const playerContainer = document.getElementById('video-player-container');
+          const playerContainer = document.getElementById('player-container');
+          const statusDiv = document.getElementById('status');
 
-          // Asegúrate de que WebTorrentPlayer esté disponible antes de usarlo
-          if (typeof WebTorrentPlayer === 'undefined') {
-              console.error('WebTorrentPlayer no está definido. El script no se cargó correctamente.');
-              alert('Error: El reproductor no se pudo cargar. Revisa la consola del navegador.');
-              return;
-          }
+          const client = new WebTorrent(); // Crea una nueva instancia de WebTorrent
 
-          const player = new WebTorrentPlayer({
-              container: playerContainer,
+          client.on('error', (err) => {
+              console.error('WebTorrent Error:', err);
+              statusDiv.textContent = `Error: ${err.message || err}`;
           });
 
           loadTorrentBtn.addEventListener('click', () => {
               const magnetLink = magnetLinkInput.value.trim();
               if (magnetLink) {
-                  playerContainer.innerHTML = ''; // Limpia el contenedor
-                  player.load(magnetLink);
+                  playerContainer.innerHTML = 'Cargando metadatos...'; // Limpia y muestra estado
+                  statusDiv.textContent = 'Iniciando descarga...';
+
+                  client.add(magnetLink, (torrent) => {
+                      console.log('Cliente descargando:', torrent.infoHash);
+                      statusDiv.textContent = `Descargando: ${torrent.name}`;
+
+                      // Encuentra el archivo de video (ej. .mp4, .webm)
+                      const file = torrent.files.find((f) => {
+                          return f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.name.endsWith('.mkv');
+                      });
+
+                      if (file) {
+                          playerContainer.innerHTML = ''; // Limpia el mensaje de carga
+                          file.appendTo(playerContainer, (err, elem) => {
+                              if (err) {
+                                  console.error('Error al añadir archivo al reproductor:', err);
+                                  statusDiv.textContent = `Error de reproducción: ${err.message}`;
+                                  return;
+                              }
+                              console.log('Video listo para reproducir:', file.name);
+                              statusDiv.textContent = `Reproduciendo: ${file.name}`;
+                              elem.controls = true; // Añade controles al video
+                          });
+
+                          // Actualizar progreso
+                          torrent.on('download', () => {
+                              const progress = (torrent.progress * 100).toFixed(1);
+                              statusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${client.downloadSpeed / 1024 / 1024} MB/s`;
+                          });
+                      } else {
+                          playerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
+                          statusDiv.textContent = 'Error: No se encontró video.';
+                      }
+                  });
               } else {
                   alert('Por favor, introduce un enlace Magnet.');
               }
