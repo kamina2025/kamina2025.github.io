@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Mi Reproductor WebTorrent</title>
+    <!-- Carga el CSS del reproductor desde CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/webtorrent-player@latest/lib/webtorrent-player.css">
+    <style>
+      /* Tus estilos personalizados (si los tienes) */
+      body { font-family: sans-serif; margin: 20px; text-align: center; }
+      #video-player-container {
+        width: 80%; /* O el tamaño que quieras */
+        max-width: 800px;
+        margin: 20px auto;
+        border: 1px solid #ccc;
+        min-height: 400px; /* Para que se vea algo antes de cargar el video */
+        background-color: #000;
+      }
+      input[type="text"] {
+        width: 70%;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 8px 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Reproductor WebTorrent</h1>
+    <input type="text" id="torrent-magnet-link" placeholder="Pega tu enlace Magnet aquí">
+    <button id="load-torrent-btn">Cargar Torrent</button>
+
+    <!-- Contenedor donde WebTorrentPlayer montará el video -->
+    <div id="video-player-container"></div>
+
+    <!-- Carga el JavaScript del reproductor desde CDN -->
+    <script src="https://unpkg.com/webtorrent-player@latest/lib/webtorrent-player.js"></script>
+
+    <!-- Tu script personalizado para usar el reproductor (app.js) -->
+    <script>
+      // Asegúrate de que este script esté DESPUÉS del script del CDN
+      // Este es el código que tenías en app.js
+      document.addEventListener('DOMContentLoaded', () => {
+          const magnetLinkInput = document.getElementById('torrent-magnet-link');
+          const loadTorrentBtn = document.getElementById('load-torrent-btn');
+          const playerContainer = document.getElementById('video-player-container');
+
+          const player = new WebTorrentPlayer({
+              container: playerContainer,
+          });
+
+          loadTorrentBtn.addEventListener('click', () => {
+              const magnetLink = magnetLinkInput.value.trim();
+              if (magnetLink) {
+                  playerContainer.innerHTML = ''; // Limpia el contenedor
+                  player.load(magnetLink);
+              } else {
+                  alert('Por favor, introduce un enlace Magnet.');
+              }
+          });
+      });
+    </script>
+
+    <!-- Service Worker y Subtítulos (si aún los quieres, pero pueden dar problemas de ruta) -->
+    <!-- Si el reproductor los necesita y no los encuentra, podrían fallar.
+         Si el reproductor intenta cargarlos con rutas absolutas, seguirán dando 404.
+         Por ahora, no los incluiremos para simplificar.
+    -->
+    <!-- <script src="sw.js"></script> -->
+    <!-- <script src="lib/subtitles-octopus-worker.js"></script> -->
+    <!-- <script src="lib/subtitles-octopus-worker.wasm"></script> -->
+  </body>
+</html>
