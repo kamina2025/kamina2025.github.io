@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Mi Reproductor WebTorrent Simple</title>
     <style>
+      /* ... (mantén tus estilos) ... */
       body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f0f0f0; }
       #player-container {
         width: 80%;
@@ -57,10 +58,8 @@
     </div>
     <div id="status"></div>
 
-    <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
     <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
 
-    <!-- Tu script personalizado para usar WebTorrent -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
           const magnetLinkInput = document.getElementById('torrent-magnet-link');
@@ -68,7 +67,27 @@
           const playerContainer = document.getElementById('player-container');
           const statusDiv = document.getElementById('status');
 
-          const client = new WebTorrent(); // Crea una nueva instancia de WebTorrent
+          if (typeof WebTorrent === 'undefined') {
+              console.error('WebTorrent no está definido. El script no se cargó correctamente.');
+              statusDiv.textContent = 'Error: El reproductor no se pudo cargar. Revisa la consola del navegador.';
+              return;
+          }
+
+          // *** MODIFICACIÓN AQUÍ: Añadir la configuración ICE ***
+          const client = new WebTorrent({
+              tracker: {
+                  // Puedes dejar esta propiedad vacía o añadir trackers si los conoces
+              },
+              // Servidores STUN/TURN públicos y conocidos por funcionar
+              iceServers: [
+                  { urls: 'stun:stun.l.google.com:19302' },
+                  { urls: 'stun:stun1.l.google.com:19302' },
+                  { urls: 'stun:stun2.l.google.com:19302' },
+                  { urls: 'stun:stun3.l.google.com:19302' },
+                  { urls: 'stun:stun4.l.google.com:19302' }
+              ]
+          });
+          // *** FIN MODIFICACIÓN ***
 
           client.on('error', (err) => {
               console.error('WebTorrent Error:', err);
@@ -78,20 +97,19 @@
           loadTorrentBtn.addEventListener('click', () => {
               const magnetLink = magnetLinkInput.value.trim();
               if (magnetLink) {
-                  playerContainer.innerHTML = 'Cargando metadatos...'; // Limpia y muestra estado
+                  playerContainer.innerHTML = 'Cargando metadatos...';
                   statusDiv.textContent = 'Iniciando descarga...';
 
                   client.add(magnetLink, (torrent) => {
                       console.log('Cliente descargando:', torrent.infoHash);
                       statusDiv.textContent = `Descargando: ${torrent.name}`;
 
-                      // Encuentra el archivo de video (ej. .mp4, .webm)
                       const file = torrent.files.find((f) => {
                           return f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.name.endsWith('.mkv');
                       });
 
                       if (file) {
-                          playerContainer.innerHTML = ''; // Limpia el mensaje de carga
+                          playerContainer.innerHTML = '';
                           file.appendTo(playerContainer, (err, elem) => {
                               if (err) {
                                   console.error('Error al añadir archivo al reproductor:', err);
@@ -100,13 +118,12 @@
                               }
                               console.log('Video listo para reproducir:', file.name);
                               statusDiv.textContent = `Reproduciendo: ${file.name}`;
-                              elem.controls = true; // Añade controles al video
+                              elem.controls = true;
                           });
 
-                          // Actualizar progreso
                           torrent.on('download', () => {
                               const progress = (torrent.progress * 100).toFixed(1);
-                              statusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${client.downloadSpeed / 1024 / 1024} MB/s`;
+                              statusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
                           });
                       } else {
                           playerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
