@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>Mi Reproductor WebTorrent</title>
-    <!-- Carga el CSS del reproductor desde CDN -->
-    <link rel="stylesheet" href="https://unpkg.com/webtorrent-player@latest/lib/webtorrent-player.css">
+    <!-- Carga el CSS del reproductor desde jsDelivr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/webtorrent-player@1.2.7/lib/webtorrent-player.css">
     <style>
       /* Tus estilos personalizados (si los tienes) */
       body { font-family: sans-serif; margin: 20px; text-align: center; }
@@ -35,17 +35,22 @@
     <!-- Contenedor donde WebTorrentPlayer montará el video -->
     <div id="video-player-container"></div>
 
-    <!-- Carga el JavaScript del reproductor desde CDN -->
-    <script src="https://unpkg.com/webtorrent-player@latest/lib/webtorrent-player.js"></script>
+    <!-- Carga el JavaScript del reproductor desde jsDelivr -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent-player@1.2.7/lib/webtorrent-player.js"></script>
 
-    <!-- Tu script personalizado para usar el reproductor (app.js) -->
+    <!-- Tu script personalizado para usar el reproductor -->
     <script>
-      // Asegúrate de que este script esté DESPUÉS del script del CDN
-      // Este es el código que tenías en app.js
       document.addEventListener('DOMContentLoaded', () => {
           const magnetLinkInput = document.getElementById('torrent-magnet-link');
           const loadTorrentBtn = document.getElementById('load-torrent-btn');
           const playerContainer = document.getElementById('video-player-container');
+
+          // Asegúrate de que WebTorrentPlayer esté disponible antes de usarlo
+          if (typeof WebTorrentPlayer === 'undefined') {
+              console.error('WebTorrentPlayer no está definido. El script no se cargó correctamente.');
+              alert('Error: El reproductor no se pudo cargar. Revisa la consola del navegador.');
+              return;
+          }
 
           const player = new WebTorrentPlayer({
               container: playerContainer,
@@ -62,14 +67,5 @@
           });
       });
     </script>
-
-    <!-- Service Worker y Subtítulos (si aún los quieres, pero pueden dar problemas de ruta) -->
-    <!-- Si el reproductor los necesita y no los encuentra, podrían fallar.
-         Si el reproductor intenta cargarlos con rutas absolutas, seguirán dando 404.
-         Por ahora, no los incluiremos para simplificar.
-    -->
-    <!-- <script src="sw.js"></script> -->
-    <!-- <script src="lib/subtitles-octopus-worker.js"></script> -->
-    <!-- <script src="lib/subtitles-octopus-worker.wasm"></script> -->
   </body>
 </html>
