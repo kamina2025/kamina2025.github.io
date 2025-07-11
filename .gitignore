@@ -1,8 +1,0 @@
-# Ignorar la carpeta node_modules
-node_modules/
-
-# Ignorar la carpeta .parcel-cache (creada por Parcel)
-.parcel-cache/
-
-# Ignorar la carpeta dist si no quieres subirla
-# dist/
