@@ -3,94 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro de Pago Nano - Video Exclusivo</title>
+    <title>Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 1</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
+    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Estilos adicionales para el contenedor del reproductor WebTorrent */
+        #webtorrent-player-container {
+            width: 100%; /* Ocupa el 100% del div padre */
+            max-width: 800px; /* Ancho máximo para el reproductor */
+            margin: 20px auto;
+            background-color: #000; /* Fondo negro para el video */
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        #video-section {
-            display: none; /* Oculto inicialmente */
-            margin-top: 20px;
-        }
-        #payment-section {
-            margin-top: 20px;
-        }
-        #payment-details {
-            background-color: #e9f7ef;
-            border: 1px solid #d4edda;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        #payment-details p {
-            margin: 5px 0;
-            font-size: 1.1em;
-        }
-        #payment-address {
-            word-break: break-all;
-            font-weight: bold;
-            color: #28a745;
-        }
-        #qr-code {
-            margin-top: 15px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            background-color: #fff;
-        }
-        button {
-            background-color: #007bff;
+            align-items: center;
+            min-height: 450px; /* Altura mínima para que se vea el contenedor */
             color: white;
-            padding: 10px 20px;
-            border: none;
+            font-size: 1.2em;
+            border-radius: 8px; /* Bordes redondeados */
+            overflow: hidden; /* Asegura que el video no se salga de los bordes */
+        }
+        #webtorrent-player-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ajusta el video sin cortarlo */
+        }
+        #webtorrent-status {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        /* Estilos para el título y descripción del video */
+        .video-title {
+            color: #007bff;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
             border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 15px;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .status-message {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        .status-pending {
-            color: orange;
-        }
-        .status-completed {
-            color: green;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
+        .video-description {
+            font-size: 1.1em;
+            color: #555;
+            max-width: 700px;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Video Exclusivo</h1>
+        <h1 class="video-title">Vigilante: Boku no Hero Academia ILLEGALS</h1>
+        <p class="video-description">
+            Explora los orígenes y las aventuras de los vigilantes en el universo de My Hero Academia. 
+            Este capítulo introductorio te sumerge en el mundo antes de los héroes oficiales, 
+            presentando personajes carismáticos y una trama llena de acción y misterio.
+        </p>
 
         <div id="access-section">
             <p>Para acceder a este video, por favor realiza un pequeño pago en Nano.</p>
@@ -109,138 +77,19 @@
             </div>
         </div>
 
-        <div id="video-section">
+        <div id="video-section" style="display: none;">
             <h2>¡Video Desbloqueado!</h2>
-            <video width="100%" controls>
-                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-                Tu navegador no soporta la etiqueta de video.
-            </video>
-            <p>¡Disfruta del contenido!</p>
+            <!-- Contenedor para el reproductor WebTorrent -->
+            <div id="webtorrent-player-container">
+                Cargando video...
+            </div>
+            <div id="webtorrent-status"></div>
         </div>
     </div>
 
+    <!-- Tus scripts existentes para el muro de pago -->
     <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
-
-    <script>
-        // --- CONFIGURACIÓN DE BACK4APP ---
-        // ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
-        const APP_ID = "uWlcf09rid2ghAB4RIWLno9BHdvJAkZR6vJd8g60"; // Tu Application ID de Back4App
-        const JAVASCRIPT_KEY = "YFbSV0dqJBjLMSUru95x39zlPRPEKjiAbckFseRO"; // Tu JavaScript Key de Back4App
-
-        // Inicializa Parse SDK
-        Parse.initialize(APP_ID, JAVASCRIPT_KEY);
-        Parse.serverURL = 'https://parseapi.back4app.com/'; // Asegúrate de que esta URL sea correcta
-
-        // --- REFERENCIAS A ELEMENTOS DEL DOM ---
-        const payButton = document.getElementById('payButton');
-        const accessSection = document.getElementById('access-section');
-        const paymentSection = document.getElementById('payment-section');
-        const videoSection = document.getElementById('video-section');
-        const amountToPaySpan = document.getElementById('amountToPay');
-        const paymentAddressSpan = document.getElementById('payment-address');
-        const qrCodeDiv = document.getElementById('qr-code');
-        const paymentStatusMessage = document.getElementById('paymentStatusMessage');
-        const checkPaymentButton = document.getElementById('checkPaymentButton');
-        const errorMessage = document.getElementById('errorMessage');
-
-        let currentPaymentId = null; // Para almacenar el ID del pago actual
-        let checkPaymentInterval = null; // Para el intervalo de verificación de pago
-
-        // --- FUNCIÓN PARA SOLICITAR EL PAGO ---
-        payButton.addEventListener('click', async () => {
-            errorMessage.textContent = ''; // Limpiar mensajes de error
-            payButton.disabled = true; // Deshabilitar botón para evitar múltiples clics
-            paymentStatusMessage.className = 'status-message status-pending';
-            paymentStatusMessage.textContent = 'Solicitando dirección de pago...';
-
-            try {
-                // Llama a la función Cloud Code 'requestVideoPayment'
-                const result = await Parse.Cloud.run('requestVideoPayment', {
-                    videoId: 'exclusive_video_001', // Puedes usar un ID de video real aquí
-                    amountNano: 0.001 // Cantidad de NANO a pagar
-                });
-
-                const { paymentAddress, expectedAmountNano, paymentId } = result;
-                currentPaymentId = paymentId; // Guarda el ID para futuras verificaciones
-
-                // Muestra los detalles del pago
-                amountToPaySpan.textContent = expectedAmountNano;
-                paymentAddressSpan.textContent = paymentAddress;
-
-                // Genera el código QR
-                qrCodeDiv.innerHTML = ''; // Limpiar QR anterior si existe
-                new QRCode(qrCodeDiv, {
-                    text: `nano:${paymentAddress}?amount=${expectedAmountNano * (10**30)}`, // URL de Nano para el QR
-                    width: 180,
-                    height: 180,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-
-                accessSection.style.display = 'none'; // Oculta la sección de acceso
-                paymentSection.style.display = 'block'; // Muestra la sección de pago
-                checkPaymentButton.style.display = 'block'; // Muestra el botón de verificar
-
-                paymentStatusMessage.textContent = 'Por favor, envía el pago. Verificando automáticamente...';
-                
-                // Inicia la verificación automática cada 5 segundos
-                checkPaymentInterval = setInterval(checkPaymentStatus, 10000);
-
-            } catch (error) {
-                console.error('Error al solicitar pago:', error);
-                errorMessage.textContent = `Error: ${error.message || 'No se pudo obtener la dirección de pago.'}`;
-                payButton.disabled = false; // Habilitar botón de nuevo
-                paymentStatusMessage.textContent = '';
-            }
-        });
-
-        // --- FUNCIÓN PARA VERIFICAR EL ESTADO DEL PAGO ---
-        async function checkPaymentStatus() {
-            if (!currentPaymentId) return; // No hay pago para verificar
-
-            paymentStatusMessage.className = 'status-message status-pending';
-            paymentStatusMessage.textContent = 'Verificando pago...';
-            checkPaymentButton.disabled = true; // Deshabilitar botón mientras verifica
-
-            try {
-                // Llama a la función Cloud Code 'checkPaymentStatus'
-                const result = await Parse.Cloud.run('checkPaymentStatus', {
-                    paymentId: currentPaymentId
-                });
-
-                if (result.status === 'completed') {
-                    clearInterval(checkPaymentInterval); // Detiene la verificación automática
-                    paymentStatusMessage.className = 'status-message status-completed';
-                    paymentStatusMessage.textContent = `¡Pago confirmado! Recibido: ${result.amountReceivedNano} NANO.`;
-                    paymentSection.style.display = 'none'; // Oculta la sección de pago
-                    videoSection.style.display = 'block'; // Muestra la sección del video
-                } else {
-                    paymentStatusMessage.className = 'status-message status-pending';
-                    paymentStatusMessage.textContent = 'Pago pendiente. Esperando confirmación...';
-                }
-            } catch (error) {
-                console.error('Error al verificar pago:', error);
-                errorMessage.textContent = `Error al verificar: ${error.message || 'Error desconocido.'}`;
-                clearInterval(checkPaymentInterval); // Detiene la verificación en caso de error
-                paymentStatusMessage.textContent = 'Error al verificar pago.';
-                paymentStatusMessage.className = 'status-message';
-            } finally {
-                checkPaymentButton.disabled = false; // Habilitar botón de nuevo
-            }
-        }
-
-        // Event listener para el botón de verificación manual (además de la auto-verificación)
-        checkPaymentButton.addEventListener('click', checkPaymentStatus);
-
-        // Inicializar el estado de la UI al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            accessSection.style.display = 'block';
-            paymentSection.style.display = 'none';
-            videoSection.style.display = 'none';
-        });
-
-    </script>
+    <script src="script.js"></script> <!-- Aquí se integrará la lógica de WebTorrent -->
 </body>
 </html>
