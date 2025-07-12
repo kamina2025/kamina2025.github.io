@@ -111,7 +111,7 @@
     // --- CONFIGURACIÓN DE BACK4APP ---
 // --- CONFIGURACIÓN DE BACK4APP ---
 // ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
-const APP_ID = "QfKOG4dLQfCGa8b9IV8Y8HcNhiLC9jQjkKAxLU"; // <-- NUEVO Application ID
+const APP_ID = "QfKOG4dLQfCGa8b9IV8Y8HcNhiLC9jQjkKAxLUes"; // <-- NUEVO Application ID
 const JAVASCRIPT_KEY = "v5QjDpaPAD8FRN1cmZoXqpQ9Fg2vpxOSsCejq8qr"; // <-- NUEVO JavaScript Key
 
     // Inicializa Parse SDK
