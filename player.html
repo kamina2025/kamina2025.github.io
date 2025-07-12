@@ -1,116 +1,176 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Reproductor WebTorrent - Capítulo 1</title>
-    <style>
-      body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f0f0f0; }
-      #player-container {
-        width: 80%;
-        max-width: 800px;
-        margin: 20px auto;
-        border: 1px solid #ccc;
-        background-color: #000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 400px;
-        color: white;
-        font-size: 1.2em;
-      }
-      #player-container video {
-        max-width: 100%;
-        max-height: 100%;
-      }
-      #status {
-        margin-top: 10px;
-        font-size: 0.9em;
-        color: #555;
-      }
-      h1 {
-        color: #333;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 1</h1>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title id="page-title">Cargando Video...</title>
+        <link rel="stylesheet" href="style.css">
+        <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
+        <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+        <!-- Tus scripts existentes para el muro de pago -->
+        <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+        <style>
+            /* Tus estilos para el reproductor y el muro de pago (pueden ser los mismos que en tu index.html anterior) */
+            body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f0f0f0; }
+            .container { /* Asegúrate de que tu contenedor principal tenga un ancho adecuado */
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            .video-title {
+                color: #007bff;
+                margin-bottom: 10px;
+                font-size: 2.2em;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 10px;
+                border-radius: 5px;
+            }
+            .video-description {
+                font-size: 1.1em;
+                color: #555;
+                max-width: 700px;
+                margin-bottom: 30px;
+                line-height: 1.6;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            #webtorrent-player-container {
+                width: 100%;
+                max-width: 800px;
+                margin: 20px auto;
+                background-color: #000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 450px;
+                color: white;
+                font-size: 1.2em;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            #webtorrent-player-container video {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            #webtorrent-status {
+                margin-top: 10px;
+                font-size: 0.9em;
+                color: #555;
+            }
 
-    <div id="player-container">
-      Cargando video...
-    </div>
-    <div id="status">Iniciando...</div>
+            /* Estilos para el Muro de Pago (Modal) */
+            .paywall-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+            }
+            .paywall-content {
+                background-color: white;
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                text-align: center;
+                max-width: 450px;
+                width: 90%;
+                transform: scale(0.9);
+                animation: scaleIn 0.3s forwards;
+            }
+            @keyframes scaleIn {
+                from { transform: scale(0.8); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            .paywall-content h3 {
+                color: #dc3545;
+                margin-bottom: 20px;
+                font-size: 1.6em;
+            }
+            .paywall-content p {
+                margin-bottom: 25px;
+                font-size: 1.1em;
+                color: #666;
+            }
+            .paywall-content button {
+                background-color: #007bff;
+                color: white;
+                padding: 12px 30px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1.1em;
+                transition: background-color 0.3s ease, transform 0.2s ease;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+            .paywall-content button:hover {
+                background-color: #0056b3;
+                transform: translateY(-2px);
+            }
+            .paywall-content button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            .hidden {
+                display: none;
+            }
 
-    <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
-    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+            /* Media Queries para Responsividad */
+            @media (max-width: 768px) {
+                .video-title { font-size: 1.8em; }
+                .video-description { font-size: 1em; }
+                .paywall-content { padding: 30px; }
+                .paywall-content h3 { font-size: 1.4em; }
+                .paywall-content p { font-size: 1em; }
+                .paywall-content button { padding: 10px 25px; font-size: 1em; }
+                #webtorrent-player-container { min-height: 300px; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="video-title" id="video-display-title"></h1>
+            <p class="video-description" id="video-display-description"></p>
 
-    <!-- Tu script personalizado para usar WebTorrent -->
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          const playerContainer = document.getElementById('player-container');
-          const statusDiv = document.getElementById('status');
+            <div id="access-section">
+                <p>Para acceder a este video, por favor realiza un pequeño pago en Nano.</p>
+                <button id="payButton">Pagar <span id="payment-amount-display"></span> NANO para ver el video</button>
+                <p class="error-message" id="errorMessage"></p>
+            </div>
 
-          if (typeof WebTorrent === 'undefined') {
-              console.error('WebTorrent no está definido. El script no se cargó correctamente.');
-              statusDiv.textContent = 'Error: El reproductor no se pudo cargar. Revisa la consola del navegador.';
-              return;
-          }
+            <div id="payment-section" style="display: none;">
+                <h2>Detalles del Pago</h2>
+                <div id="payment-details">
+                    <p>Envía <span id="amountToPay"></span> NANO a la siguiente dirección:</p>
+                    <p id="payment-address"></p>
+                    <div id="qr-code"></div>
+                    <p class="status-message" id="paymentStatusMessage">Esperando pago...</p>
+                    <button id="checkPaymentButton" style="display: none;">Verificar Pago</button>
+                </div>
+            </div>
 
-          const client = new WebTorrent({
-              tracker: {
-                  // Puedes dejar esta propiedad vacía o añadir trackers si los conoces
-              },
-              iceServers: [
-                  { urls: 'stun:stun.l.google.com:19302' },
-                  { urls: 'stun:stun1.l.google.com:19302' },
-                  { urls: 'stun:stun2.l.google.com:19302' },
-                  { urls: 'stun:stun3.l.google.com:19302' },
-                  { urls: 'stun:stun4.l.google.com:19302' }
-              ]
-          });
+            <div id="video-section" style="display: none;">
+                <h2>¡Video Desbloqueado!</h2>
+                <!-- Contenedor para el reproductor WebTorrent -->
+                <div id="webtorrent-player-container">
+                    Cargando video...
+                </div>
+                <div id="webtorrent-status"></div>
+            </div>
+        </div>
 
-          client.on('error', (err) => {
-              console.error('WebTorrent Error:', err);
-              statusDiv.textContent = `Error: ${err.message || err}`;
-          });
-
-          // *** ENLACE MAGNET HARDCODEADO ***
-          const magnetLink = 'magnet:?xt=urn:btih:5ab5136378ac9f996f4d7ca6855823bef3f49b45&dn=Vigilante+Boku+no+Hero+Academia+ILLEGALS+Cap+1+SUB+ESPANOLHD+Ve.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com';
-
-          playerContainer.innerHTML = 'Cargando metadatos...';
-          statusDiv.textContent = 'Iniciando descarga...';
-
-          client.add(magnetLink, (torrent) => {
-              console.log('Cliente descargando:', torrent.infoHash);
-              statusDiv.textContent = `Descargando: ${torrent.name}`;
-
-              const file = torrent.files.find((f) => {
-                  return f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.name.endsWith('.mkv');
-              });
-
-              if (file) {
-                  playerContainer.innerHTML = '';
-                  file.appendTo(playerContainer, (err, elem) => {
-                      if (err) {
-                          console.error('Error al añadir archivo al reproductor:', err);
-                          statusDiv.textContent = `Error de reproducción: ${err.message}`;
-                          return;
-                      }
-                      console.log('Video listo para reproducir:', file.name);
-                      statusDiv.textContent = `Reproduciendo: ${file.name}`;
-                      elem.controls = true;
-                      elem.autoplay = true; // Reproducir automáticamente
-                  });
-
-                  torrent.on('download', () => {
-                      const progress = (torrent.progress * 100).toFixed(1);
-                      statusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
-                  });
-              } else {
-                  playerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
-                  statusDiv.textContent = 'Error: No se encontró video.';
-              }
-          });
-      });
-    </script>
-  </body>
-</html>
+        <!-- Tu script principal para la lógica del pago y el reproductor -->
+        <script src="script.js"></script> 
+    </body>
+    </html>
+    

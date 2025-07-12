@@ -1,95 +1,222 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 1</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Carga la librería WebTorrent.js desde su CDN oficial -->
-    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Mis Series - kamina2025</title>
     <style>
-        /* Estilos adicionales para el contenedor del reproductor WebTorrent */
-        #webtorrent-player-container {
-            width: 100%; /* Ocupa el 100% del div padre */
-            max-width: 800px; /* Ancho máximo para el reproductor */
-            margin: 20px auto;
-            background-color: #000; /* Fondo negro para el video */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 450px; /* Altura mínima para que se vea el contenedor */
-            color: white;
-            font-size: 1.2em;
-            border-radius: 8px; /* Bordes redondeados */
-            overflow: hidden; /* Asegura que el video no se salga de los bordes */
-        }
-        #webtorrent-player-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Ajusta el video sin cortarlo */
-        }
-        #webtorrent-status {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #555;
-        }
-        /* Estilos para el título y descripción del video */
-        .video-title {
-            color: #007bff;
-            margin-bottom: 10px;
-            font-size: 2.2em;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            border-radius: 5px;
-        }
-        .video-description {
-            font-size: 1.1em;
-            color: #555;
-            max-width: 700px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
+      body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      .series-grid { /* Contenedor para las tarjetas de series */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .series-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 0; /* Eliminamos el padding de la tarjeta principal */
+        margin: 20px;
+        width: 350px; /* Ancho fijo para la tarjeta de serie */
+        text-align: left;
+        overflow: hidden; /* Para que los bordes redondeados se apliquen bien */
+      }
+
+      /* Estilos para el encabezado de la serie (la parte clicable) */
+      .series-header {
+        background-color: #007bff;
+        color: white;
+        padding: 15px 20px;
+        font-size: 1.5em;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        transition: background-color 0.3s ease;
+      }
+      .series-card.expanded .series-header {
+        border-bottom-left-radius: 0; /* Quita redondeo si está expandido */
+        border-bottom-right-radius: 0;
+      }
+      .series-header:hover {
+        background-color: #0056b3;
+      }
+      .toggle-icon {
+        font-size: 1.2em;
+        transition: transform 0.3s ease;
+      }
+      .series-card.expanded .toggle-icon {
+        transform: rotate(45deg); /* Gira el '+' a una 'x' o un 'v' */
+      }
+
+      /* Estilos para la lista de capítulos (contenido desplegable) */
+      .chapters-list {
+        padding: 0 20px; /* Padding solo para el contenido */
+        max-height: 0; /* Inicialmente oculto */
+        overflow: hidden;
+        transition: max-height 0.5s ease-out, padding 0.5s ease-out; /* Animación de despliegue */
+        background-color: white;
+      }
+      .series-card.expanded .chapters-list {
+        max-height: 500px; /* Suficientemente grande para contener los capítulos */
+        padding: 20px;
+      }
+
+      /* Estilos para cada item de capítulo */
+      .chapter-item {
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .chapter-item:last-child {
+        border-bottom: none; /* No hay borde inferior en el último capítulo */
+      }
+      .chapter-item p {
+        margin: 0 0 10px 0;
+        color: #555;
+        font-size: 1em;
+      }
+      .chapter-item button {
+        padding: 8px 15px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background-color 0.3s ease;
+        width: auto; /* Ancho automático para el botón del capítulo */
+        align-self: flex-end; /* Alinea el botón a la derecha */
+      }
+      .chapter-item button:hover {
+        background-color: #218838;
+      }
+
+      /* Media Queries para Responsividad */
+      @media (max-width: 768px) {
+        h1 { font-size: 2em; }
+        .series-grid { flex-direction: column; align-items: center; }
+        .series-card { width: 90%; max-width: 350px; }
+        .series-header { font-size: 1.3em; padding: 12px 15px; }
+        .chapters-list { padding: 15px; }
+        .chapter-item { padding: 10px 0; }
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="video-title">Vigilante: Boku no Hero Academia ILLEGALS</h1>
-        <p class="video-description">
-            Explora los orígenes y las aventuras de los vigilantes en el universo de My Hero Academia. 
-            Este capítulo introductorio te sumerge en el mundo antes de los héroes oficiales, 
-            presentando personajes carismáticos y una trama llena de acción y misterio.
-        </p>
+  </head>
+  <body>
+    <h1>¡Bienvenido a Mis Series!</h1>
 
-        <div id="access-section">
-            <p>Para acceder a este video, por favor realiza un pequeño pago en Nano.</p>
-            <button id="payButton">Pagar 0.001 NANO para ver el video</button>
-            <p class="error-message" id="errorMessage"></p>
+    <div class="series-grid">
+        <!-- ***** TARJETA DE SERIE CON CAPÍTULOS DESPLEGABLES ***** -->
+        <div class="series-card" id="vigilante-series">
+            <div class="series-header" onclick="toggleChapters('vigilante-series')">
+                <h2>Vigilante: Boku no Hero Academia ILLEGALS</h2>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="chapters-list">
+                <div class="chapter-item">
+                    <p>Capítulo 1 - Orígenes y primeros pasos.</p>
+                    <button onclick="location.href='player.html?id=vigilante_s1_ep1'">Ver Capítulo 1</button>
+                </div>
+                <div class="chapter-item">
+                    <p>Capítulo 2 - Nuevas revelaciones y desafíos.</p>
+                    <button onclick="location.href='player.html?id=vigilante_s1_ep2'">Ver Capítulo 2</button>
+                </div>
+                <!-- Puedes añadir más capítulos aquí dentro de la misma serie -->
+                <div class="chapter-item">
+                    <p>Capítulo 3 - La trama se complica.</p>
+                    <button onclick="location.href='player.html?id=vigilante_s1_ep3'">Ver Capítulo 3</button>
+                </div>
+            </div>
         </div>
+        <!-- ***** FIN DE LA TARJETA DE SERIE ***** -->
 
-        <div id="payment-section" style="display: none;">
-            <h2>Detalles del Pago</h2>
-            <div id="payment-details">
-                <p>Envía <span id="amountToPay"></span> NANO a la siguiente dirección:</p>
-                <p id="payment-address"></p>
-                <div id="qr-code"></div>
-                <p class="status-message" id="paymentStatusMessage">Esperando pago...</p>
-                <button id="checkPaymentButton" style="display: none;">Verificar Pago</button>
+        <!-- Puedes añadir más series-card aquí para otras series -->
+        <div class="series-card" id="otra-series">
+            <div class="series-header" onclick="toggleChapters('otra-series')">
+                <h2>Otra Serie Genial</h2>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="chapters-list">
+                <div class="chapter-item">
+                    <p>Capítulo Piloto - Una nueva aventura comienza.</p>
+                    <button onclick="location.href='player.html?id=otra_serie_ep1'">Ver Capítulo Piloto</button>
+                </div>
+                <div class="chapter-item">
+                    <p>Capítulo 1 - El primer gran desafío.</p>
+                    <button onclick="location.href='player.html?id=otra_serie_ep2'">Ver Capítulo 1</button>
+                </div>
             </div>
         </div>
 
-        <div id="video-section" style="display: none;">
-            <h2>¡Video Desbloqueado!</h2>
-            <!-- Contenedor para el reproductor WebTorrent -->
-            <div id="webtorrent-player-container">
-                Cargando video...
-            </div>
-            <div id="webtorrent-status"></div>
-        </div>
     </div>
 
-    <!-- Tus scripts existentes para el muro de pago -->
-    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
-    <script src="script.js"></script> <!-- Aquí se integrará la lógica de WebTorrent -->
-</body>
+    <script>
+      // Función para expandir/contraer la lista de capítulos
+      function toggleChapters(seriesCardId) {
+        const seriesCard = document.getElementById(seriesCardId);
+        const chaptersList = seriesCard.querySelector('.chapters-list');
+        const toggleIcon = seriesCard.querySelector('.toggle-icon');
+
+        if (seriesCard.classList.contains('expanded')) {
+          // Si está expandido, lo contraemos
+          seriesCard.classList.remove('expanded');
+          chaptersList.style.maxHeight = '0';
+          chaptersList.style.padding = '0 20px'; // Restaura el padding
+          toggleIcon.textContent = '+';
+        } else {
+          // Si está contraído, lo expandimos
+          // Primero, contrae cualquier otra tarjeta expandida (opcional)
+          document.querySelectorAll('.series-card.expanded').forEach(card => {
+            if (card.id !== seriesCardId) { // No contraer la misma tarjeta
+              card.classList.remove('expanded');
+              card.querySelector('.chapters-list').style.maxHeight = '0';
+              card.querySelector('.chapters-list').style.padding = '0 20px';
+              card.querySelector('.toggle-icon').textContent = '+';
+            }
+          });
+
+          seriesCard.classList.add('expanded');
+          // Establece una altura máxima grande para permitir la transición
+          chaptersList.style.maxHeight = chaptersList.scrollHeight + 'px'; 
+          chaptersList.style.padding = '20px'; // Aplica el padding completo
+          toggleIcon.textContent = 'x'; // O puedes usar '-'
+        }
+      }
+
+      // Ajustar max-height al cargar para asegurar que la transición funcione si se inicia expandido
+      // (Aunque en este caso, inician contraídos)
+      document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('.chapters-list').forEach(list => {
+              list.style.maxHeight = '0'; // Asegura que estén contraídos al cargar
+              list.style.padding = '0 20px';
+          });
+      });
+    </script>
+  </body>
 </html>
