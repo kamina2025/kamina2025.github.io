@@ -108,9 +108,11 @@
     // --- FIN DE LA LÓGICA WEBTORRENT ---
 
     // --- CONFIGURACIÓN DE BACK4APP ---
-    // ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
-    const APP_ID = "uWlcf09rid2ghAB4RIWLno9BHdvJAkZR6vJd8g60"; // Tu Application ID de Back4App
-    const JAVASCRIPT_KEY = "YFbSV0dqJBjLMSUru95x39zlPRPEKjiAbckFseRO"; // Tu JavaScript Key de Back4App
+    // --- CONFIGURACIÓN DE BACK4APP ---
+// --- CONFIGURACIÓN DE BACK4APP ---
+// ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
+const APP_ID = "QfKOG4dLQfCGa8b9IV8Y8HcNhiLC9jQjkKAxLU"; // <-- NUEVO Application ID
+const JAVASCRIPT_KEY = "v5QjDpaPAD8FRN1cmZoXqpQ9Fg2vpxOSsCejq8qr"; // <-- NUEVO JavaScript Key
 
     // Inicializa Parse SDK
     Parse.initialize(APP_ID, JAVASCRIPT_KEY);
