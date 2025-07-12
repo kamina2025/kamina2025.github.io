@@ -10,7 +10,7 @@
             title: 'Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 2',
             description: 'Continúa la emocionante historia con nuevas revelaciones y desafíos para nuestros héroes. ¡No te lo pierdas!',
             magnetLink: 'magnet:?xt=urn:btih:665f5667ef96f506d0579ea1e26546d9c0767e74&dn=Vigilante+Boku+no+Hero+Academia+ILLEGALS+Cap+2+SUB+ESPANOLHD+Ve.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL DEL CAPÍTULO 2!
-            amountNano: 0.0015
+            amountNano: 0.002
         },
         'vigilante_s1_ep3': {
             title: 'Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 3',
