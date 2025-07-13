@@ -1,163 +1,57 @@
+/* styles.css - Versión Limpia y Optimizada */
+
+/* Estilos globales para el cuerpo */
 body {
     font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-    background-color: #f0f2f5; /* Fondo gris claro */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-h1 {
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 2.5em;
-}
-.series-grid { /* Contenedor para las tarjetas de series */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-.series-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    padding: 0;
-    margin: 20px;
-     max-width: 90vw; /* Ocupa el 90% del ancho del viewport, hasta un máximo */
-    width: 600px; /* ANCHO AUMENTADO */
-    text-align: left;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    /* Tailwind se encarga del fondo, texto y flexbox en el body de index.html y series.html */
+    /* margin y padding ya no son necesarios aquí si se manejan con Tailwind en el HTML */
 }
 
-/* Estilos para el encabezado de la serie (la parte clicable) */
-.series-header {
-    background-color: #007bff;
-    color: white;
-    padding: 15px 20px;
-    font-size: 1.5em;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    transition: background-color 0.3s ease;
-}
-.series-card.expanded .series-header {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
-.series-header:hover {
-    background-color: #0056b3;
-}
-.toggle-icon {
-    font-size: 1.2em;
-    transition: transform 0.3s ease;
-}
-.series-card.expanded .toggle-icon {
-    transform: rotate(45deg);
-}
-
-/* Estilos para la lista de capítulos (contenido desplegable) */
-.chapters-list {
-    padding: 0 20px;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out, padding 0.5s ease-out;
-    background-color: white;
-    flex-grow: 1;
-}
-.series-card.expanded .chapters-list {
-    max-height: 1200px; /* AUMENTADO para acomodar más contenido por capítulo */
-    padding: 20px;
-}
-
-/* Estilos para cada item de capítulo */
-.chapter-item {
-    border-bottom: 1px solid #eee;
-    padding: 10px 0; /* AJUSTADO: Reducido de 15px a 10px */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative; /* Para posicionar el mensaje de desbloqueado */
-}
-.chapter-item:last-child {
-    border-bottom: none;
-}
-.chapter-item p {
-    margin: 0 0 10px 0;
-    color: #555;
-    font-size: 1em;
-}
-.chapter-item .chapter-btn {
-    padding: 8px 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease;
-    width: auto;
-    align-self: flex-end;
-}
-.chapter-item .chapter-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-.chapter-item .chapter-btn:hover:not(:disabled) {
-    background-color: #218838;
-}
-
-/* Estilos para la sección de pago por capítulo */
-.chapter-payment-section {
-    background-color: #f9f9f9;
-    border-top: 1px solid #eee;
-    padding: 10px; /* AJUSTADO: Reducido de 15px a 10px */
-    margin-top: 5px; /* AJUSTADO: Reducido de 10px a 5px */
-    border-radius: 8px;
-}
-.chapter-payment-details {
-    background-color: #e0f2fe;
-    border-left: 4px solid #38b2ac;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 10px;
-    text-align: left;
-}
-.chapter-payment-error {
-    background-color: #fee2e2;
-    border-left: 4px solid #ef4444;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 10px;
-    color: #dc2626;
-    text-align: left;
-}
+/* Estilos para el spinner de carga (mantener, ya que es una animación personalizada) */
 .loading-spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
+    border: 4px solid #f3f3f3; /* Color de fondo del borde */
+    border-top: 4px solid #3b82f6; /* Color azul de Tailwind para la parte animada */
     border-radius: 50%;
     width: 20px;
     height: 20px;
     animation: spin 1s linear infinite;
-    margin: 10px auto;
+    /* margin, etc. se manejan con Tailwind en el HTML */
 }
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Estilos para los mensajes de estado de pago (mantener, para colores y formato específicos) */
+.status-message {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* rounded-md */
+    font-weight: 600; /* font-semibold */
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.status-pending {
+    background-color: #fbbf24; /* yellow-400 */
+    color: #78350f; /* yellow-900 */
+}
+
+.status-completed {
+    background-color: #34d399; /* green-400 */
+    color: #065f46; /* green-900 */
+}
+
+/* Ajustes para el input de monto en el capítulo (mantener para compatibilidad de navegador) */
+.chapter-item input[type="number"] {
+    -moz-appearance: textfield; /* Para Firefox */
+}
+.chapter-item input[type="number"]::-webkit-outer-spin-button,
+.chapter-item input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Estilos para el mensaje de capítulo desbloqueado (mantener para el efecto de superposición) */
 .chapter-unlocked-message {
     position: absolute;
     top: 0;
@@ -178,3 +72,37 @@ h1 {
 .chapter-unlocked-message.hidden {
     display: none;
 }
+
+/* Asegurar que el video se adapte (mantener) */
+#videoPlayer {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Estilos específicos para player-styles.css si lo tienes separado */
+/* Si player-styles.css existe y tiene estilos específicos para el reproductor,
+   asegúrate de que no haya conflictos con los estilos globales o de Tailwind.
+   Por ejemplo, si player-styles.css define un .container, podría sobrescribir
+   el comportamiento de Tailwind. */
+
+/*
+   Los siguientes estilos de tu styles.css original han sido eliminados
+   porque ahora se manejan con clases de Tailwind en index.html y series.html,
+   o ya no son relevantes para la nueva estructura:
+
+   - h1
+   - .series-grid
+   - .series-card (la mayoría de sus propiedades ahora están en Tailwind)
+   - .series-header
+   - .toggle-icon
+   - .chapters-list (la mayoría de sus propiedades ahora están en Tailwind)
+   - .chapter-item (la mayoría de sus propiedades ahora están en Tailwind)
+   - .chapter-item p
+   - .chapter-item .chapter-btn
+   - .chapter-item .chapter-btn:disabled
+   - .chapter-item .chapter-btn:hover:not(:disabled)
+   - .chapter-payment-section (la mayoría de sus propiedades ahora están en Tailwind)
+   - .chapter-payment-details (la mayoría de sus propiedades ahora están en Tailwind)
+   - .chapter-payment-error (la mayoría de sus propiedades ahora están en Tailwind)
+*/
