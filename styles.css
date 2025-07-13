@@ -30,7 +30,8 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     padding: 0;
     margin: 20px;
-    width: 1500px; /* ANCHO AUMENTADO */
+     max-width: 90vw; /* Ocupa el 90% del ancho del viewport, hasta un máximo */
+    width: 600px; /* ANCHO AUMENTADO */
     text-align: left;
     overflow: hidden;
     display: flex;
