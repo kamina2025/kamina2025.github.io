@@ -1,203 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Series - kamina2025</title>
-    <!-- Enlace al archivo de estilos CSS -->
+    <title>Kamina Series - Inicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!-- Incluye Tailwind CSS para un estilo rápido y moderno -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Librerías JavaScript externas (para index.html) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
-<body>
-    <h1>¡Bienvenido a Mis Series!</h1>
-
-    <div class="series-grid">
-        <!-- ***** TARJETA DE SERIE CON CAPÍTULOS DESPLEGABLES ***** -->
-        <div class="series-card" id="vigilante-series">
-            <div class="series-header" onclick="toggleChapters('vigilante-series')">
-                <h2>Vigilante: Boku no Hero Academia ILLEGALS</h2>
-                <span class="toggle-icon">+</span>
-            </div>
-            <div class="chapters-list">
-                <div class="chapter-item" data-chapter-id="vigilante_s1_ep1">
-                    <p>Capítulo 1 - Orígenes y primeros pasos.</p>
-                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo 1</button>
-                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
-                    <div class="chapter-payment-section mt-4">
-                        <label for="amount-vigilante_s1_ep1" class="block text-gray-700 text-sm font-semibold mb-2">
-                            Monto a pagar (NANO):
-                        </label>
-                        <input
-                            type="number"
-                            id="amount-vigilante_s1_ep1"
-                            value="0.001"
-                            step="0.000001"
-                            min="0.000001"
-                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
-                            Desbloquear Capítulo
-                        </button>
-                        <div class="chapter-payment-details hidden">
-                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
-                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
-                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
-                            <div class="loading-spinner hidden"></div>
-                            <div class="chapter-payment-error text-red-500 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chapter-item" data-chapter-id="vigilante_s1_ep2">
-                    <p>Capítulo 2 - Nuevas revelaciones y desafíos.</p>
-                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo 2</button>
-                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
-                    <div class="chapter-payment-section mt-4">
-                        <label for="amount-vigilante_s1_ep2" class="block text-gray-700 text-sm font-semibold mb-2">
-                            Monto a pagar (NANO):
-                        </label>
-                        <input
-                            type="number"
-                            id="amount-vigilante_s1_ep2"
-                            value="0.001"
-                            step="0.000001"
-                            min="0.000001"
-                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
-                            Desbloquear Capítulo
-                        </button>
-                        <div class="chapter-payment-details hidden">
-                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
-                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
-                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
-                            <div class="loading-spinner hidden"></div>
-                            <div class="chapter-payment-error text-red-500 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chapter-item" data-chapter-id="vigilante_s1_ep3">
-                    <p>Capítulo 3 - La trama se complica.</p>
-                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo 3</button>
-                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
-                    <div class="chapter-payment-section mt-4">
-                        <label for="amount-vigilante_s1_ep3" class="block text-gray-700 text-sm font-semibold mb-2">
-                            Monto a pagar (NANO):
-                        </label>
-                        <input
-                            type="number"
-                            id="amount-vigilante_s1_ep3"
-                            value="0.001"
-                            step="0.000001"
-                            min="0.000001"
-                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
-                            Desbloquear Capítulo
-                        </button>
-                        <div class="chapter-payment-details hidden">
-                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
-                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
-                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
-                            <div class="loading-spinner hidden"></div>
-                            <div class="chapter-payment-error text-red-500 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body class="bg-gray-900 text-gray-100 font-sans">
+    <header class="bg-gray-800 p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-blue-400">Kamina Series</h1>
+            <nav>
+                <a href="index.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
+            </nav>
         </div>
-        <!-- ***** FIN DE LA TARJETA DE SERIE ***** -->
+    </header>
 
-        <!-- Otra Serie Genial -->
-        <div class="series-card" id="otra-series">
-            <div class="series-header" onclick="toggleChapters('otra-series')">
-                <h2>Otra Serie Genial</h2>
-                <span class="toggle-icon">+</span>
-            </div>
-            <div class="chapters-list">
-                <div class="chapter-item" data-chapter-id="otra_serie_ep1">
-                    <p>Capítulo Piloto - Una nueva aventura comienza.</p>
-                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo Piloto</button>
-                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
-                    <div class="chapter-payment-section mt-4">
-                        <label for="amount-otra_serie_ep1" class="block text-gray-700 text-sm font-semibold mb-2">
-                            Monto a pagar (NANO):
-                        </label>
-                        <input
-                            type="number"
-                            id="amount-otra_serie_ep1"
-                            value="0.001"
-                            step="0.000001"
-                            min="0.000001"
-                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
-                            Desbloquear Capítulo
-                        </button>
-                        <div class="chapter-payment-details hidden">
-                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
-                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
-                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
-                            <div class="loading-spinner hidden"></div>
-                            <div class="chapter-payment-error text-red-500 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chapter-item" data-chapter-id="otra_serie_ep2">
-                    <p>Capítulo 1 - El primer gran desafío.</p>
-                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo 1</button>
-                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
-                    <div class="chapter-payment-section mt-4">
-                        <label for="amount-otra_serie_ep2" class="block text-gray-700 text-sm font-semibold mb-2">
-                            Monto a pagar (NANO):
-                        </label>
-                        <input
-                            type="number"
-                            id="amount-otra_serie_ep2"
-                            value="0.001"
-                            step="0.000001"
-                            min="0.000001"
-                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        >
-                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
-                            Desbloquear Capítulo
-                        </button>
-                        <div class="chapter-payment-details hidden">
-                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
-                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
-                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
-                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
-                            <div class="loading-spinner hidden"></div>
-                            <div class="chapter-payment-error text-red-500 hidden"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <main class="container mx-auto p-6">
+        <h2 class="text-4xl font-extrabold text-center text-white mb-8">Nuestras Series</h2>
+        
+        <div id="series-list-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Las tarjetas de series se cargarán aquí dinámicamente -->
         </div>
-    </div>
+    </main>
 
-    <!-- Enlace al archivo de script JavaScript principal -->
-    <script src="script.js"></script>
+    <footer class="bg-gray-800 p-4 text-center text-gray-400 mt-8">
+        <p>&copy; 2025 Kamina Series. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Incluye el archivo de datos antes del script principal -->
+    <script src="data.js"></script>
+    <!-- Script para la lógica de la página principal (listado de series) -->
+    <script src="index.js"></script>
 </body>
 </html>
