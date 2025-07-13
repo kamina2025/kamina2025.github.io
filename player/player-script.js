@@ -43,20 +43,23 @@ const webTorrentPlayerContainer = document.getElementById('webtorrent-player-con
 const webTorrentStatusDiv = document.getElementById('webtorrent-status');
 
 function initializeAndLoadWebTorrentVideo() {
+    console.log("WebTorrent: Iniciando carga de video...");
     if (!currentVideoData || !currentVideoData.magnetLink) {
-        console.error('No se pudo cargar el video: Datos del video o enlace magnet no disponibles.');
+        console.error('WebTorrent: No se pudo cargar el video: Datos del video o enlace magnet no disponibles.');
         webTorrentStatusDiv.textContent = 'Error: No se pudo cargar la información del video.';
         return;
     }
+    console.log("WebTorrent: Magnet Link:", currentVideoData.magnetLink);
 
     if (typeof WebTorrent === 'undefined') {
-        console.error('WebTorrent no está definido. El script no se cargó correctamente.');
+        console.error('WebTorrent: WebTorrent no está definido. El script no se cargó correctamente.');
         webTorrentStatusDiv.textContent = 'Error: El reproductor no se pudo cargar. Revisa la consola del navegador.';
         return;
     }
 
     // Limpiar cualquier cliente WebTorrent anterior para evitar conflictos
     if (window.webtorrentClient) {
+        console.log("WebTorrent: Destruyendo cliente anterior.");
         window.webtorrentClient.destroy();
     }
     const client = new WebTorrent({
@@ -80,7 +83,7 @@ function initializeAndLoadWebTorrentVideo() {
     webTorrentStatusDiv.textContent = 'Iniciando descarga del torrent...';
 
     client.add(currentVideoData.magnetLink, (torrent) => {
-        console.log('Cliente descargando:', torrent.infoHash);
+        console.log('WebTorrent: Cliente descargando:', torrent.infoHash);
         webTorrentStatusDiv.textContent = `Descargando: ${torrent.name}`;
 
         const file = torrent.files.find((f) => {
@@ -88,14 +91,15 @@ function initializeAndLoadWebTorrentVideo() {
         });
 
         if (file) {
+            console.log('WebTorrent: Archivo de video encontrado:', file.name);
             webTorrentPlayerContainer.innerHTML = '';
             file.appendTo(webTorrentPlayerContainer, (err, elem) => {
                 if (err) {
-                    console.error('Error al añadir archivo al reproductor:', err);
+                    console.error('WebTorrent: Error al añadir archivo al reproductor:', err);
                     webTorrentStatusDiv.textContent = `Error de reproducción: ${err.message}`;
                     return;
                 }
-                console.log('Video listo para reproducir:', file.name);
+                console.log('WebTorrent: Video listo para reproducir:', file.name);
                 webTorrentStatusDiv.textContent = `Reproduciendo: ${file.name}`;
                 elem.controls = true;
                 elem.autoplay = true;
@@ -106,6 +110,7 @@ function initializeAndLoadWebTorrentVideo() {
                 webTorrentStatusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
             });
         } else {
+            console.error('WebTorrent: No se encontró un archivo de video compatible en el torrent.');
             webTorrentPlayerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
             webTorrentStatusDiv.textContent = 'Error: No se encontró video compatible.';
         }
@@ -117,7 +122,6 @@ function initializeAndLoadWebTorrentVideo() {
 const pageTitleElement = document.getElementById('page-title');
 const videoDisplayTitle = document.getElementById('video-display-title');
 const videoDisplayDescription = document.getElementById('video-display-description');
-const paymentAmountDisplay = document.getElementById('payment-amount-display'); // Ya no se usa para mostrar monto, pero se mantiene si se quiere reintroducir
 
 const accessSection = document.getElementById('access-section');
 const paymentSection = document.getElementById('payment-section');
@@ -137,6 +141,7 @@ let checkPaymentInterval = null; // Para el intervalo de verificación de pago
  * Esta función también inicia la carga del video WebTorrent.
  */
 function showVideoContent() {
+    console.log("showVideoContent: Mostrando sección de video.");
     accessSection.classList.add('hidden'); // Oculta la sección de acceso
     paymentSection.classList.add('hidden'); // Oculta la sección de pago
     videoSection.classList.remove('hidden'); // Muestra la sección de video
@@ -151,13 +156,16 @@ function showVideoContent() {
  * @returns {boolean} - true si ya está desbloqueado, false en caso contrario.
  */
 function checkLocalStorageAccess() {
-    return localStorage.getItem(LOCAL_STORAGE_ACCESS_KEY) === 'true';
+    const isUnlocked = localStorage.getItem(LOCAL_STORAGE_ACCESS_KEY) === 'true';
+    console.log(`checkLocalStorageAccess: Capítulo ${currentVideoId} está desbloqueado en localStorage? ${isUnlocked}`);
+    return isUnlocked;
 }
 
 /**
  * Función para guardar el estado de desbloqueo en localStorage.
  */
 function saveAccessToLocalStorage() {
+    console.log(`saveAccessToLocalStorage: Marcando capítulo ${currentVideoId} como desbloqueado.`);
     localStorage.setItem(LOCAL_STORAGE_ACCESS_KEY, 'true');
     localStorage.removeItem(LOCAL_STORAGE_PAYMENT_TOKEN_KEY); // Limpiar el token una vez desbloqueado
 }
@@ -177,9 +185,10 @@ function convertNanoToRaw(nanoAmount) {
 // --- FUNCIÓN PARA VERIFICAR EL ESTADO DEL PAGO DIRECTAMENTE CON ACCEPT-NANO ---
 async function checkPaymentStatus(token) {
     if (!token) {
-        console.error("No hay token de pago para verificar.");
+        console.error("checkPaymentStatus: No hay token de pago para verificar.");
         return;
     }
+    console.log(`checkPaymentStatus: Verificando token ${token} para capítulo ${currentVideoId}...`);
 
     paymentStatusMessage.className = 'status-message status-pending';
     paymentStatusMessage.textContent = 'Verificando pago...';
@@ -200,6 +209,7 @@ async function checkPaymentStatus(token) {
         }
 
         const data = await response.json();
+        console.log("checkPaymentStatus: Respuesta de /api/verify:", data);
 
         amountToPaySpan.textContent = data.amount;
         paymentAddressSpan.textContent = data.account;
@@ -218,19 +228,21 @@ async function checkPaymentStatus(token) {
         });
 
         if (data.fulfilled) {
+            console.log(`checkPaymentStatus: Pago para ${currentVideoId} CONFIRMADO.`);
             clearInterval(checkPaymentInterval); // Detener el polling
             paymentStatusMessage.className = 'status-message status-completed';
             paymentStatusMessage.textContent = `¡Pago confirmado! Recibido: ${data.balance} NANO.`;
             saveAccessToLocalStorage(); // Marcar como desbloqueado
             showVideoContent(); // Muestra el video
         } else {
+            console.log(`checkPaymentStatus: Pago para ${currentVideoId} aún PENDIENTE. Balance: ${data.balance}`);
             paymentStatusMessage.className = 'status-message status-pending';
             paymentStatusMessage.textContent = 'Pago pendiente. Esperando confirmación...';
             // Si el token no está fulfilled pero ya ha expirado, podríamos manejarlo aquí
             // if (data.remainingSeconds <= 0) { /* handle expired */ }
         }
     } catch (error) {
-        console.error('Error al verificar pago:', error);
+        console.error('checkPaymentStatus: Error al verificar pago:', error);
         errorMessage.textContent = `Error al verificar: ${error.message || 'Error desconocido.'}`;
         clearInterval(checkPaymentInterval); // Detener el polling en caso de error grave
         paymentStatusMessage.textContent = 'Error al verificar pago. Intenta de nuevo.';
@@ -250,14 +262,17 @@ if (checkPaymentButton) {
 
 // --- LÓGICA DE INICIALIZACIÓN AL CARGAR LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("player-script.js: DOMContentLoaded - Iniciando.");
     // Obtener el ID del video de la URL
     const urlParams = new URLSearchParams(window.location.search);
     currentVideoId = urlParams.get('id');
+    console.log(`player-script.js: ID de video de la URL: ${currentVideoId}`);
 
     if (currentVideoId && VIDEO_DATA[currentVideoId]) {
         currentVideoData = VIDEO_DATA[currentVideoId];
         LOCAL_STORAGE_ACCESS_KEY = `video_${currentVideoId}_unlocked`;
         LOCAL_STORAGE_PAYMENT_TOKEN_KEY = `video_${currentVideoId}_payment_token`;
+        console.log(`player-script.js: Datos del video cargados para ${currentVideoId}.`);
 
         pageTitleElement.textContent = currentVideoData.title;
         videoDisplayTitle.textContent = currentVideoData.title;
@@ -265,15 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (checkLocalStorageAccess()) {
             // Si ya está desbloqueado, muestra el video directamente
-            console.log(`Video ${currentVideoId} ya desbloqueado, mostrando contenido.`);
+            console.log(`player-script.js: Capítulo ${currentVideoId} ya desbloqueado en localStorage. Mostrando contenido.`);
             showVideoContent();
         } else {
             // Si no está desbloqueado, intenta recuperar un token de pago pendiente
             currentPaymentToken = localStorage.getItem(LOCAL_STORAGE_PAYMENT_TOKEN_KEY);
+            console.log(`player-script.js: Token de pago guardado en localStorage: ${currentPaymentToken}`);
 
             if (currentPaymentToken) {
                 // Si hay un token de pago pendiente, muestra la sección de pago y comienza a verificar
-                console.log(`Video ${currentVideoId} tiene un pago pendiente, reanudando verificación.`);
+                console.log(`player-script.js: Capítulo ${currentVideoId} tiene un pago pendiente, reanudando verificación.`);
                 accessSection.classList.add('hidden');
                 paymentSection.classList.remove('hidden');
                 videoSection.classList.add('hidden');
@@ -286,16 +302,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkPaymentStatus(currentPaymentToken); // Verificación inicial inmediata
             } else {
                 // Si no está desbloqueado y no hay token pendiente, muestra la sección de acceso
-                console.log(`Video ${currentVideoId} no desbloqueado y sin pago pendiente.`);
+                console.log(`player-script.js: Capítulo ${currentVideoId} no desbloqueado y sin pago pendiente. Mostrando muro de acceso.`);
                 accessSection.classList.remove('hidden');
                 paymentSection.classList.add('hidden');
                 videoSection.classList.add('hidden');
                 // Aquí podrías mostrar el monto que costaría desbloquearlo
-                accessSection.querySelector('p').textContent = `Este capítulo requiere ser desbloqueado para su visualización. El costo es de ${currentVideoData.amountNano} NANO.`;
+                accessSection.querySelector('p').textContent = `Este capítulo requiere ser desbloqueado para su visualización. El costo es de ${currentVideoData.amountNano} NANO. Por favor, regresa a la página principal para iniciar el pago.`;
             }
         }
     } else {
-        console.error('ID de video no encontrado o inválido en la URL.');
+        console.error('player-script.js: ID de video no encontrado o inválido en la URL.');
         // Si no hay ID o es inválido, redirige a la página principal
         alert('Video no encontrado o ID inválido. Redirigiendo a la página principal.');
         window.location.href = '../index.html';
