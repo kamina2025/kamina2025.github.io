@@ -56,14 +56,16 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
 
     if (isUnlocked) {
         chapterBtn.disabled = false;
-        chapterBtn.onclick = () => location.href = `player/player.html?id=${chapterItemElement.dataset.chapterId}`;
+        // Importante: El enlace ahora apunta a la subcarpeta 'player'
+        // Ya no necesitamos el onclick aquí si la redirección es automática
+        // chapterBtn.onclick = () => location.href = `player/player.html?id=${chapterItemElement.dataset.chapterId}`;
         unlockChapterBtn.classList.add('hidden');
         chapterPaymentSection.classList.add('hidden'); // Ocultar toda la sección de pago
         chapterPaymentDetails.classList.add('hidden');
         chapterUnlockedMessage.classList.remove('hidden'); // Mostrar mensaje de desbloqueado
     } else {
         chapterBtn.disabled = true;
-        chapterBtn.onclick = null;
+        // chapterBtn.onclick = null; // No es necesario si el botón está deshabilitado
         unlockChapterBtn.classList.remove('hidden');
         chapterPaymentSection.classList.remove('hidden'); // Mostrar la sección de pago
         chapterUnlockedMessage.classList.add('hidden'); // Ocultar mensaje de desbloqueado
@@ -162,13 +164,16 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
         if (data.fulfilled) {
             clearInterval(pollingIntervals[chapterId]); // Detener el polling
             localStorage.setItem(chapterId + '_unlocked', 'true'); // Marcar como desbloqueado
+            console.log(`DEBUG index.html: localStorage.setItem("${chapterId}_unlocked", "true") ejecutado.`);
+            console.log(`DEBUG index.html: Valor de localStorage.getItem("${chapterId}_unlocked") es: "${localStorage.getItem(chapterId + '_unlocked')}"`);
             localStorage.removeItem(chapterId + '_payment_token'); // Limpiar token guardado
             updateChapterUI(chapterItemElement, true); // Actualizar UI a desbloqueado
             console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
 
             // --- REDIRECCIÓN AUTOMÁTICA DESPUÉS DE LA CONFIRMACIÓN ---
+            // ¡¡¡AHORA SÍ HABILITADA CON PARÁMETRO!!!
             setTimeout(() => {
-                location.href = `player/player.html?id=${chapterId}`;
+                location.href = `player/player.html?id=${chapterId}&unlocked=true`; // Añadimos &unlocked=true
             }, 1500); // Redirigir después de 1.5 segundos para mostrar el mensaje
             // --- FIN REDIRECCIÓN AUTOMÁTICA ---
 

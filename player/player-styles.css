@@ -1,116 +1,131 @@
 body {
-    font-family: 'Inter', sans-serif; /* Usando Inter para consistencia */
+    font-family: 'Inter', sans-serif;
+    background-color: #1a202c; /* bg-gray-900 */
+    color: #e2e8f0; /* text-gray-200 */
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: flex-start; /* Alinea arriba para evitar que el contenido se centre verticalmente si es muy largo */
     min-height: 100vh;
-    background-color: #f0f2f5;
-    margin: 0;
     padding: 20px;
     box-sizing: border-box;
 }
+
 .container {
-    background-color: #ffffff;
+    background-color: #2d3748; /* bg-gray-800 */
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 600px;
+    border-radius: 12px; /* rounded-xl */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* shadow-lg */
+    max-width: 900px;
     width: 100%;
+    text-align: center;
+    box-sizing: border-box;
 }
-h1 {
-    color: #333;
+
+h1, h2 {
+    color: #63b3ed; /* text-blue-400 */
     margin-bottom: 20px;
-    font-size: 2.5em; /* Ajuste para que se vea bien */
+    font-weight: 700; /* font-bold */
 }
-.description {
-    color: #555;
-    margin-bottom: 25px;
-    font-size: 1.1em;
+
+p {
+    margin-bottom: 15px;
     line-height: 1.6;
 }
-#video-section {
-    display: none; /* Oculto inicialmente */
-    margin-top: 20px;
+
+.description {
+    color: #a0aec0; /* text-gray-400 */
+    font-size: 0.9em;
+    margin-bottom: 25px;
 }
-#payment-section {
-    margin-top: 20px;
+
+.access-section, .payment-section, .video-section {
+    background-color: #4a5568; /* bg-gray-700 */
+    padding: 25px;
+    border-radius: 8px; /* rounded-lg */
+    margin-top: 25px;
 }
-#payment-details { /* Este ID no está en el HTML actual, pero lo mantengo por si lo reintroduces */
-    background-color: #e9f7ef;
-    border: 1px solid #d4edda;
-    padding: 15px;
-    border-radius: 5px;
-    margin-top: 20px;
+
+.hidden {
+    display: none !important; /* Asegura que se oculte */
 }
-#payment-details p {
-    margin: 5px 0;
-    font-size: 1.1em;
-}
-#payment-address {
-    word-break: break-all;
-    font-weight: bold;
-    color: #28a745;
-}
-#qr-code {
+
+.status-message {
+    font-weight: 600; /* font-semibold */
     margin-top: 15px;
-    border: 1px solid #ddd;
-    padding: 5px;
-    background-color: #fff;
-    /* Centrar el QR */
-    display: flex;
+}
+
+.status-pending {
+    color: #f6ad55; /* text-orange-400 */
+}
+
+.status-completed {
+    color: #68d391; /* text-green-400 */
+}
+
+.error-message {
+    color: #fc8181; /* text-red-400 */
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.qr-code {
+    margin: 20px auto;
+    border: 5px solid white;
+    border-radius: 8px;
+    width: 190px; /* Ancho del QR + borde */
+    height: 190px; /* Alto del QR + borde */
+    display: flex; /* Para centrar el canvas dentro */
     justify-content: center;
     align-items: center;
-    width: 180px; /* Asegura que el contenedor del QR tenga el mismo tamaño que el canvas */
-    height: 180px;
-    margin-left: auto;
-    margin-right: auto;
 }
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    margin-top: 15px;
-    transition: background-color 0.3s ease;
-}
-button:hover {
-    background-color: #0056b3;
-}
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-.status-message {
-    margin-top: 10px;
-    font-weight: bold;
-}
-.status-pending {
-    color: orange;
-}
-.status-completed {
-    color: green;
-}
-.error-message {
-    color: red;
-    margin-top: 10px;
-    font-size: 0.9em;
-}
-.webtorrent-player-container video {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
+
+/* Estilos específicos para el reproductor de video */
+#webtorrent-player-container {
+    background-color: black; /* Fondo negro para el reproductor */
     border-radius: 8px;
-    margin-top: 15px;
+    overflow: hidden; /* Asegura que el video no se desborde */
+    position: relative; /* Para posicionar el video dentro si es necesario */
+    width: 100%; /* Ocupa todo el ancho disponible */
+    /* padding-bottom: 56.25%; */ /* Relación de aspecto 16:9 (altura es 56.25% del ancho) */
+    /* height: 0; */ /* Necesario para el padding-bottom */
+    /* Eliminamos padding-bottom y height:0 para que el video tome su tamaño */
+    height: auto; /* Permitir que el video defina la altura */
+    min-height: 300px; /* Altura mínima para que sea visible si el video tarda en cargar */
+    display: flex; /* Para centrar el video dentro */
+    justify-content: center;
+    align-items: center;
 }
+
+/* REGLAS CRÍTICAS PARA EL ELEMENTO VIDEO */
+#videoPlayer {
+    /* Forzar visibilidad y tamaño */
+    width: 100% !important; /* Forzar 100% de ancho */
+    height: auto !important; /* Permitir que el video mantenga su relación de aspecto */
+    max-height: 80vh; /* Para que no sea demasiado grande en pantallas pequeñas */
+    display: block !important; /* Asegurar que sea un elemento de bloque */
+    visibility: visible !important; /* Asegurar que sea visible */
+    opacity: 1 !important; /* Asegurar que no sea transparente */
+    background-color: black; /* Fondo negro para el video */
+    border-radius: 8px; /* Mantener bordes redondeados */
+}
+
 .webtorrent-status {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #666;
+    margin-top: 15px;
+    color: #90cdf4; /* text-blue-300 */
+    font-size: 0.85em;
+}
+
+/* Estilos para botones */
+button {
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
 }
 
 /* Media Queries para Responsividad */

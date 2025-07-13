@@ -41,6 +41,7 @@ let LOCAL_STORAGE_PAYMENT_TOKEN_KEY = null; // Clave para el token de pago en lo
 // --- COMIENZO DE LA LÓGICA WEBTORRENT ---
 const webTorrentPlayerContainer = document.getElementById('webtorrent-player-container');
 const webTorrentStatusDiv = document.getElementById('webtorrent-status');
+const videoElement = document.getElementById('videoPlayer'); // Obtener el elemento video directamente
 
 function initializeAndLoadWebTorrentVideo() {
     console.log("WebTorrent: Iniciando carga de video...");
@@ -79,8 +80,8 @@ function initializeAndLoadWebTorrentVideo() {
         webTorrentStatusDiv.textContent = `Error de WebTorrent: ${err.message || err}`;
     });
 
-    webTorrentPlayerContainer.innerHTML = 'Cargando metadatos del video...';
-    webTorrentStatusDiv.textContent = 'Iniciando descarga del torrent...';
+    // ¡IMPORTANTE! Solo actualizamos el párrafo de estado, NO el innerHTML del contenedor del video.
+    webTorrentStatusDiv.textContent = 'Cargando metadatos del video...';
 
     client.add(currentVideoData.magnetLink, (torrent) => {
         console.log('WebTorrent: Cliente descargando:', torrent.infoHash);
@@ -92,18 +93,35 @@ function initializeAndLoadWebTorrentVideo() {
 
         if (file) {
             console.log('WebTorrent: Archivo de video encontrado:', file.name);
-            webTorrentPlayerContainer.innerHTML = '';
-            file.appendTo(webTorrentPlayerContainer, (err, elem) => {
-                if (err) {
-                    console.error('WebTorrent: Error al añadir archivo al reproductor:', err);
-                    webTorrentStatusDiv.textContent = `Error de reproducción: ${err.message}`;
-                    return;
-                }
-                console.log('WebTorrent: Video listo para reproducir:', file.name);
-                webTorrentStatusDiv.textContent = `Reproduciendo: ${file.name}`;
-                elem.controls = true;
-                elem.autoplay = true;
-            });
+            
+            if (videoElement) {
+                // Asegurarse de que el elemento video esté visible y tenga dimensiones
+                videoElement.classList.remove('hidden'); 
+                videoElement.classList.add('w-full', 'h-auto', 'block'); // Añadir clases de Tailwind para dimensiones
+
+                // Renderizar el archivo directamente al elemento video
+                file.renderTo(videoElement, {
+                    autoplay: true, 
+                    controls: true,
+                    // muted: true // Ya está en el HTML, pero se puede forzar aquí si es necesario
+                }, (err) => {
+                    if (err) {
+                        console.error('WebTorrent: Error al añadir archivo al reproductor:', err);
+                        webTorrentStatusDiv.textContent = `Error de reproducción: ${err.message}`;
+                        return;
+                    }
+                    console.log('WebTorrent: Video listo para reproducir:', file.name);
+                    webTorrentStatusDiv.textContent = `Reproduciendo: ${file.name}`;
+                    // Intentar reproducir, capturando el error de autoplay si ocurre (aunque muted debería evitarlo)
+                    videoElement.play().catch(e => {
+                        console.warn("WebTorrent: Autoplay bloqueado (probablemente no silenciado o interacción):", e);
+                        webTorrentStatusDiv.textContent = 'Haz clic en el video para reproducir (autoplay bloqueado).';
+                    });
+                });
+            } else {
+                console.error("WebTorrent: Elemento #videoPlayer no encontrado en el DOM.");
+                webTorrentStatusDiv.textContent = "Error: El reproductor de video no se pudo inicializar.";
+            }
 
             torrent.on('download', () => {
                 const progress = (torrent.progress * 100).toFixed(1);
@@ -111,7 +129,6 @@ function initializeAndLoadWebTorrentVideo() {
             });
         } else {
             console.error('WebTorrent: No se encontró un archivo de video compatible en el torrent.');
-            webTorrentPlayerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
             webTorrentStatusDiv.textContent = 'Error: No se encontró video compatible.';
         }
     });
@@ -122,6 +139,7 @@ function initializeAndLoadWebTorrentVideo() {
 const pageTitleElement = document.getElementById('page-title');
 const videoDisplayTitle = document.getElementById('video-display-title');
 const videoDisplayDescription = document.getElementById('video-display-description');
+const accessAmountSpan = document.getElementById('access-amount'); // Para mostrar el monto en el muro de acceso
 
 const accessSection = document.getElementById('access-section');
 const paymentSection = document.getElementById('payment-section');
@@ -155,9 +173,13 @@ function showVideoContent() {
  * consultando el localStorage.
  * @returns {boolean} - true si ya está desbloqueado, false en caso contrario.
  */
-function checkLocalStorageAccess() {
-    const isUnlocked = localStorage.getItem(LOCAL_STORAGE_ACCESS_KEY) === 'true';
-    console.log(`checkLocalStorageAccess: Capítulo ${currentVideoId} está desbloqueado en localStorage? ${isUnlocked}`);
+function checkLocalStorageAccess(chapterId) {
+    // Generamos la clave de la misma manera que en script.js
+    const unlockedKey = `${chapterId}_unlocked`;
+    const isUnlocked = localStorage.getItem(unlockedKey) === 'true';
+    console.log(`checkLocalStorageAccess: Clave de localStorage buscada: "${unlockedKey}"`);
+    console.log(`checkLocalStorageAccess: Valor encontrado para "${unlockedKey}": "${localStorage.getItem(unlockedKey)}"`);
+    console.log(`checkLocalStorageAccess: Capítulo ${chapterId} está desbloqueado en localStorage? ${isUnlocked}`);
     return isUnlocked;
 }
 
@@ -235,7 +257,6 @@ async function checkPaymentStatus(token) {
             saveAccessToLocalStorage(); // Marcar como desbloqueado
             showVideoContent(); // Muestra el video
         } else {
-            console.log(`checkPaymentStatus: Pago para ${currentVideoId} aún PENDIENTE. Balance: ${data.balance}`);
             paymentStatusMessage.className = 'status-message status-pending';
             paymentStatusMessage.textContent = 'Pago pendiente. Esperando confirmación...';
             // Si el token no está fulfilled pero ya ha expirado, podríamos manejarlo aquí
@@ -266,10 +287,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Obtener el ID del video de la URL
     const urlParams = new URLSearchParams(window.location.search);
     currentVideoId = urlParams.get('id');
+    // --- NUEVO: Leer el parámetro 'unlocked' de la URL ---
+    const unlockedFromUrl = urlParams.get('unlocked') === 'true';
+    console.log(`player-script.js: Parámetro 'unlocked' de la URL: ${unlockedFromUrl}`);
+    // --- FIN NUEVO ---
+
     console.log(`player-script.js: ID de video de la URL: ${currentVideoId}`);
 
     if (currentVideoId && VIDEO_DATA[currentVideoId]) {
         currentVideoData = VIDEO_DATA[currentVideoId];
+        // Generamos las claves de localStorage aquí
         LOCAL_STORAGE_ACCESS_KEY = `video_${currentVideoId}_unlocked`;
         LOCAL_STORAGE_PAYMENT_TOKEN_KEY = `video_${currentVideoId}_payment_token`;
         console.log(`player-script.js: Datos del video cargados para ${currentVideoId}.`);
@@ -277,10 +304,20 @@ document.addEventListener('DOMContentLoaded', () => {
         pageTitleElement.textContent = currentVideoData.title;
         videoDisplayTitle.textContent = currentVideoData.title;
         videoDisplayDescription.textContent = currentVideoData.description;
+        if (accessAmountSpan) { // Asegurarse de que el elemento exista
+            accessAmountSpan.textContent = currentVideoData.amountNano;
+        }
 
-        if (checkLocalStorageAccess()) {
-            // Si ya está desbloqueado, muestra el video directamente
-            console.log(`player-script.js: Capítulo ${currentVideoId} ya desbloqueado en localStorage. Mostrando contenido.`);
+
+        // Priorizamos el estado de desbloqueo de la URL
+        if (unlockedFromUrl || checkLocalStorageAccess(currentVideoId)) { // Pasamos currentVideoId a la función
+            // Si ya está desbloqueado (por URL o localStorage), muestra el video directamente
+            console.log(`player-script.js: Capítulo ${currentVideoId} desbloqueado (por URL o localStorage). Mostrando contenido.`);
+            // Asegurarnos de que el estado se guarde en localStorage si vino de la URL
+            if (unlockedFromUrl && !checkLocalStorageAccess(currentVideoId)) {
+                console.log("player-script.js: Desbloqueado por URL, guardando en localStorage para futuras visitas.");
+                saveAccessToLocalStorage(); // Guardar en localStorage para futuras visitas
+            }
             showVideoContent();
         } else {
             // Si no está desbloqueado, intenta recuperar un token de pago pendiente

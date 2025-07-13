@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Librerías JavaScript externas -->
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.1.2/webtorrent.min.js"></script>
-    <!-- Ya no necesitamos parse.min.js aquí si verificamos directamente con accept-nano -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
@@ -21,9 +20,9 @@
         <p id="video-display-description" class="description"></p>
 
         <!-- Sección de Acceso / Muro de Pago -->
-        <!-- Esta sección se mostrará si el capítulo no está desbloqueado y no hay un pago en curso -->
-        <div id="access-section" class="access-section">
-            <p>Este capítulo requiere ser desbloqueado para su visualización.</p>
+        <!-- Esta sección se mostrará si el capítulo NO está desbloqueado y NO hay un pago pendiente -->
+        <div id="access-section" class="access-section hidden">
+            <p>Este capítulo requiere ser desbloqueado para su visualización. El costo es de <span id="access-amount"></span> NANO.</p>
             <p>Por favor, regresa a la <a href="../index.html" class="text-blue-600 hover:underline">página principal</a> para desbloquearlo.</p>
             <p id="errorMessage" class="error-message"></p>
         </div>
@@ -31,18 +30,20 @@
         <!-- Sección de Pago (oculta inicialmente, se mostrará si hay un token de pago pendiente) -->
         <div id="payment-section" class="payment-section hidden">
             <h2>Pago Pendiente</h2>
-            <p>Envía <span id="amountToPay"></span> NANO a la siguiente dirección para desbloquear:</p>
-            <p id="payment-address"></p>
+            <p>Envía <span id="amountToPay" class="font-bold"></span> NANO a la siguiente dirección para desbloquear:</p>
+            <p id="payment-address" class="break-all text-green-600 font-mono text-sm"></p>
             <div id="qr-code"></div>
             <p id="paymentStatusMessage" class="status-message"></p>
             <button id="checkPaymentButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md mt-3">Verificar Pago Manualmente</button>
         </div>
 
         <!-- Sección del Video (oculta inicialmente) -->
-        <div id="video-section" class="video-section">
+        <div id="video-section" class="video-section hidden">
             <h2>Reproduciendo Video</h2>
             <div id="webtorrent-player-container" class="webtorrent-player-container">
                 <!-- El reproductor de video se insertará aquí -->
+                <!-- Añadimos un elemento video directamente con autoplay y muted -->
+                <video id="videoPlayer" class="hidden" autoplay muted controls></video>
             </div>
             <p id="webtorrent-status" class="webtorrent-status"></p>
         </div>
