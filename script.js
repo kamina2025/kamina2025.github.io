@@ -1,293 +1,309 @@
-    // --- Mapeo de IDs de video a sus datos (magnet link, título, descripción, monto de pago) ---
-    const VIDEO_DATA = {
-        'vigilante_s1_ep1': {
-            title: 'Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 1',
-            description: 'Explora los orígenes y las aventuras de los vigilantes en el universo de My Hero Academia. Este capítulo introductorio te sumerge en el mundo antes de los héroes oficiales, presentando personajes carismáticos y una trama llena de acción y misterio.',
-            magnetLink: 'magnet:?xt=urn:btih:5ab5136378ac9f996f4d7ca6855823bef3f49b45&dn=Vigilante+Boku+no+Hero+Academia+ILLEGALS+Cap+1+SUB+ESPANOLHD+Ve.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com',
-            amountNano: 0.001
-        },
-        'vigilante_s1_ep2': {
-            title: 'Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 2',
-            description: 'Continúa la emocionante historia con nuevas revelaciones y desafíos para nuestros héroes. ¡No te lo pierdas!',
-            magnetLink: 'magnet:?xt=urn:btih:665f5667ef96f506d0579ea1e26546d9c0767e74&dn=Vigilante+Boku+no+Hero+Academia+ILLEGALS+Cap+2+SUB+ESPANOLHD+Ve.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL DEL CAPÍTULO 2!
-            amountNano: 0.002
-        },
-        'vigilante_s1_ep3': {
-            title: 'Vigilante: Boku no Hero Academia ILLEGALS - Capítulo 3',
-            description: 'La trama se complica con giros inesperados y batallas épicas. ¡Descubre el destino de los vigilantes!',
-            magnetLink: 'magnet:?xt=urn:btih:YOUR_MAGNET_LINK_CAPITULO_3_AQUI&dn=Vigilante+Boku+no+Hero+Academia+ILLEGALS+Cap+3.mp4&tr=...', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL DEL CAPÍTULO 3!
-            amountNano: 0.002
-        },
-        'otra_serie_ep1': {
-            title: 'Otra Serie Genial - Capítulo Piloto',
-            description: 'Una emocionante nueva serie que te dejará al borde de tu asiento.',
-            magnetLink: 'magnet:?xt=urn:btih:YOUR_MAGNET_LINK_OTRA_SERIE_AQUI&dn=Otra+Serie+Cap+1.mp4&tr=...', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL!
-            amountNano: 0.002
-        }
-    };
+// Objeto para almacenar los intervalos de polling para cada capítulo
+const pollingIntervals = {};
 
-    // --- Variables para el video actual ---
-    let currentVideoId = null;
-    let currentVideoData = null;
-    let LOCAL_STORAGE_ACCESS_KEY = null; // Se generará dinámicamente por video
+// Función para copiar texto al portapapeles
+function copyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        alert('Copiado al portapapeles: ' + text);
+    } catch (err) {
+        console.error('No se pudo copiar al portapapeles:', err);
+        alert('Error al copiar. Por favor, copia manualmente: ' + text);
+    }
+    document.body.removeChild(textarea);
+}
 
-    // --- COMIENZO DE LA LÓGICA WEBTORRENT ---
-    // Elementos HTML para el reproductor y el estado de WebTorrent
-    const webTorrentPlayerContainer = document.getElementById('webtorrent-player-container');
-    const webTorrentStatusDiv = document.getElementById('webtorrent-status');
+// Función para expandir/contraer la lista de capítulos de una serie
+function toggleChapters(seriesCardId) {
+    const seriesCard = document.getElementById(seriesCardId);
+    const chaptersList = seriesCard.querySelector('.chapters-list');
+    const toggleIcon = seriesCard.querySelector('.toggle-icon');
 
-    /**
-     * Función para inicializar y cargar el video WebTorrent.
-     * Usa currentVideoData.magnetLink para cargar el video correcto.
-     */
-    function initializeAndLoadWebTorrentVideo() {
-        if (!currentVideoData || !currentVideoData.magnetLink) {
-            console.error('No se pudo cargar el video: Datos del video o enlace magnet no disponibles.');
-            webTorrentStatusDiv.textContent = 'Error: No se pudo cargar la información del video.';
-            return;
-        }
-
-        if (typeof WebTorrent === 'undefined') {
-            console.error('WebTorrent no está definido. El script no se cargó correctamente.');
-            webTorrentStatusDiv.textContent = 'Error: El reproductor no se pudo cargar. Revisa la consola del navegador.';
-            return;
-        }
-
-        const client = new WebTorrent({
-            tracker: {}, // Puedes añadir trackers si los conoces
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
-            ]
-        });
-
-        client.on('error', (err) => {
-            console.error('WebTorrent Error:', err);
-            webTorrentStatusDiv.textContent = `Error de WebTorrent: ${err.message || err}`;
-        });
-
-        webTorrentPlayerContainer.innerHTML = 'Cargando metadatos del video...';
-        webTorrentStatusDiv.textContent = 'Iniciando descarga del torrent...';
-
-        client.add(currentVideoData.magnetLink, (torrent) => { // Usa el magnet link del video actual
-            console.log('Cliente descargando:', torrent.infoHash);
-            webTorrentStatusDiv.textContent = `Descargando: ${torrent.name}`;
-
-            const file = torrent.files.find((f) => {
-                return f.name.endsWith('.mp4') || f.name.endsWith('.webm') || f.name.endsWith('.mkv');
-            });
-
-            if (file) {
-                webTorrentPlayerContainer.innerHTML = '';
-                file.appendTo(webTorrentPlayerContainer, (err, elem) => {
-                    if (err) {
-                        console.error('Error al añadir archivo al reproductor:', err);
-                        webTorrentStatusDiv.textContent = `Error de reproducción: ${err.message}`;
-                        return;
-                    }
-                    console.log('Video listo para reproducir:', file.name);
-                    webTorrentStatusDiv.textContent = `Reproduciendo: ${file.name}`;
-                    elem.controls = true;
-                    elem.autoplay = true;
-                });
-
-                torrent.on('download', () => {
-                    const progress = (torrent.progress * 100).toFixed(1);
-                    webTorrentStatusDiv.textContent = `Descargando: ${torrent.name} (${progress}%) - Velocidad: ${(client.downloadSpeed / 1024 / 1024).toFixed(2)} MB/s`;
-                });
-            } else {
-                webTorrentPlayerContainer.innerHTML = 'No se encontró un archivo de video compatible en el torrent.';
-                webTorrentStatusDiv.textContent = 'Error: No se encontró video compatible.';
+    if (seriesCard.classList.contains('expanded')) {
+        seriesCard.classList.remove('expanded');
+        chaptersList.style.maxHeight = '0';
+        chaptersList.style.padding = '0 20px';
+        toggleIcon.textContent = '+';
+    } else {
+        document.querySelectorAll('.series-card.expanded').forEach(card => {
+            if (card.id !== seriesCardId) {
+                card.classList.remove('expanded');
+                card.querySelector('.chapters-list').style.maxHeight = '0';
+                card.querySelector('.chapters-list').style.padding = '0 20px';
+                card.querySelector('.toggle-icon').textContent = '+';
             }
         });
+
+        seriesCard.classList.add('expanded');
+        chaptersList.style.maxHeight = chaptersList.scrollHeight + 'px';
+        chaptersList.style.padding = '20px';
+        toggleIcon.textContent = 'x';
     }
+}
 
-    // --- FIN DE LA LÓGICA WEBTORRENT ---
+// Función para actualizar la UI de un capítulo
+function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
+    const chapterBtn = chapterItemElement.querySelector('.chapter-btn');
+    const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
+    const chapterPaymentSection = chapterItemElement.querySelector('.chapter-payment-section');
+    const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
+    const chapterUnlockedMessage = chapterItemElement.querySelector('.chapter-unlocked-message');
+    const amountInput = chapterItemElement.querySelector('input[type="number"]');
 
-    // --- CONFIGURACIÓN DE BACK4APP ---
-    // --- CONFIGURACIÓN DE BACK4APP ---
-// --- CONFIGURACIÓN DE BACK4APP ---
-// ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
-const APP_ID = "QfKOG4dLQfCGa8b9IV8Y8HcNhiLC9jQjkKAxLUes"; // <-- NUEVO Application ID
-const JAVASCRIPT_KEY = "v5QjDpaPAD8FRN1cmZoXqpQ9Fg2vpxOSsCejq8qr"; // <-- NUEVO JavaScript Key
+    if (isUnlocked) {
+        chapterBtn.disabled = false;
+        // Importante: El enlace ahora apunta a la subcarpeta 'player'
+        chapterBtn.onclick = () => location.href = `player/player.html?id=${chapterItemElement.dataset.chapterId}`;
+        unlockChapterBtn.classList.add('hidden');
+        chapterPaymentSection.classList.add('hidden'); // Ocultar toda la sección de pago
+        chapterPaymentDetails.classList.add('hidden');
+        chapterUnlockedMessage.classList.remove('hidden'); // Mostrar mensaje de desbloqueado
+    } else {
+        chapterBtn.disabled = true;
+        chapterBtn.onclick = null;
+        unlockChapterBtn.classList.remove('hidden');
+        chapterPaymentSection.classList.remove('hidden'); // Mostrar la sección de pago
+        chapterUnlockedMessage.classList.add('hidden'); // Ocultar mensaje de desbloqueado
 
-    // Inicializa Parse SDK
-    Parse.initialize(APP_ID, JAVASCRIPT_KEY);
-    Parse.serverURL = 'https://parseapi.back4app.com/'; // Asegúrate de que esta URL sea correcta
+        if (paymentData) {
+            chapterPaymentDetails.classList.remove('hidden');
+            chapterItemElement.querySelector('.payment-status-text').textContent = paymentData.fulfilled ? 'Completado' : 'Pendiente';
+            chapterItemElement.querySelector('.payment-status-text').classList.toggle('text-green-600', paymentData.fulfilled);
+            chapterItemElement.querySelector('.payment-status-text').classList.toggle('text-orange-600', !paymentData.fulfilled);
+            chapterItemElement.querySelector('.payment-address').textContent = paymentData.account;
+            chapterItemElement.querySelector('.payment-token').textContent = paymentData.token;
 
-    // --- REFERENCIAS A ELEMENTOS DEL DOM ---
-    const pageTitleElement = document.getElementById('page-title');
-    const videoDisplayTitle = document.getElementById('video-display-title');
-    const videoDisplayDescription = document.getElementById('video-display-description');
-    const paymentAmountDisplay = document.getElementById('payment-amount-display');
-
-    const payButton = document.getElementById('payButton');
-    const accessSection = document.getElementById('access-section');
-    const paymentSection = document.getElementById('payment-section');
-    const videoSection = document.getElementById('video-section');
-    const amountToPaySpan = document.getElementById('amountToPay');
-    const paymentAddressSpan = document.getElementById('payment-address');
-    const qrCodeDiv = document.getElementById('qr-code');
-    const paymentStatusMessage = document.getElementById('paymentStatusMessage');
-    const checkPaymentButton = document.getElementById('checkPaymentButton');
-    const errorMessage = document.getElementById('errorMessage');
-
-    let currentPaymentId = null; // Para almacenar el ID del pago actual
-    let checkPaymentInterval = null; // Para el intervalo de verificación de pago
-
-    /**
-     * Función para mostrar el video y ocultar las otras secciones.
-     * Esta función también inicia la carga del video WebTorrent.
-     */
-    function showVideoContent() {
-        accessSection.style.display = 'none';
-        paymentSection.style.display = 'none';
-        videoSection.style.display = 'block';
-        
-        // *** LLAMADA A LA FUNCIÓN WEBTORRENT CUANDO EL VIDEO ES DESBLOQUEADO ***
-        initializeAndLoadWebTorrentVideo(); 
-    }
-
-    /**
-     * Función para verificar si el video ya ha sido desbloqueado previamente
-     * consultando el localStorage.
-     * @returns {boolean} - true si ya está desbloqueado, false en caso contrario.
-     */
-    function checkLocalStorageAccess() {
-        // Verifica si la clave de acceso única para este video existe en localStorage
-        return localStorage.getItem(LOCAL_STORAGE_ACCESS_KEY) === 'true';
-    }
-
-    /**
-     * Función para guardar el estado de desbloqueo en localStorage.
-     */
-    function saveAccessToLocalStorage() {
-        localStorage.setItem(LOCAL_STORAGE_ACCESS_KEY, 'true');
-    }
-
-    // --- FUNCIÓN PARA SOLICITAR EL PAGO ---
-    payButton.addEventListener('click', async () => {
-        errorMessage.textContent = '';
-        payButton.disabled = true;
-        paymentStatusMessage.className = 'status-message status-pending';
-        paymentStatusMessage.textContent = 'Solicitando dirección de pago...';
-
-        try {
-            const result = await Parse.Cloud.run('requestVideoPayment', {
-                videoId: currentVideoId, // Usa el ID del video actual
-                amountNano: currentVideoData.amountNano // Usa el monto del video actual
+            // Generar QR para el pago en curso
+            const qrCanvas = chapterItemElement.querySelector('.qr-code');
+            const rawAmount = convertNanoToRaw(paymentData.amount); // Convertir a raw para el QR
+            const nanoUri = `nano:${paymentData.account}?amount=${rawAmount}`;
+            new QRious({
+                element: qrCanvas,
+                value: nanoUri,
+                size: 180,
+                background: 'white',
+                foreground: 'black'
             });
 
-            const { paymentAddress, expectedAmountNano, paymentId } = result;
-            currentPaymentId = paymentId;
-
-            amountToPaySpan.textContent = expectedAmountNano;
-            paymentAddressSpan.textContent = paymentAddress;
-
-            qrCodeDiv.innerHTML = '';
-            new QRCode(qrCodeDiv, {
-                text: `nano:${paymentAddress}?amount=${expectedAmountNano * (10**30)}`,
-                width: 180,
-                height: 180,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            accessSection.style.display = 'none';
-            paymentSection.style.display = 'block';
-            checkPaymentButton.style.display = 'block';
-
-            paymentStatusMessage.textContent = 'Por favor, envía el pago. Verificando automáticamente...';
-            
-            checkPaymentInterval = setInterval(checkPaymentStatus, 10000);
-
-        } catch (error) {
-            console.error('Error al solicitar pago:', error);
-            errorMessage.textContent = `Error: ${error.message || 'No se pudo obtener la dirección de pago.'}`;
-            payButton.disabled = false;
-            paymentStatusMessage.textContent = '';
-        }
-    });
-
-    // --- FUNCIÓN PARA VERIFICAR EL ESTADO DEL PAGO ---
-    async function checkPaymentStatus() {
-        if (!currentPaymentId) return;
-
-        paymentStatusMessage.className = 'status-message status-pending';
-        paymentStatusMessage.textContent = 'Verificando pago...';
-        checkPaymentButton.disabled = true;
-
-        try {
-            const result = await Parse.Cloud.run('checkPaymentStatus', {
-                paymentId: currentPaymentId
-            });
-
-            if (result.status === 'completed') {
-                clearInterval(checkPaymentInterval);
-                paymentStatusMessage.className = 'status-message status-completed';
-                paymentStatusMessage.textContent = `¡Pago confirmado! Recibido: ${result.amountReceivedNano} NANO.`;
-                
-                saveAccessToLocalStorage();
-                showVideoContent();
-            } else {
-                paymentStatusMessage.className = 'status-message status-pending';
-                paymentStatusMessage.textContent = 'Pago pendiente. Esperando confirmación...';
-            }
-        } catch (error) {
-            console.error('Error al verificar pago:', error);
-            errorMessage.textContent = `Error al verificar: ${error.message || 'Error desconocido.'}`;
-            clearInterval(checkPaymentInterval);
-            paymentStatusMessage.textContent = 'Error al verificar pago.';
-            paymentStatusMessage.className = 'status-message';
-        } finally {
-            checkPaymentButton.disabled = false;
-        }
-    }
-
-    // Event listener para el botón de verificación manual
-    checkPaymentButton.addEventListener('click', checkPaymentStatus);
-
-    // --- LÓGICA DE INICIALIZACIÓN AL CARGAR LA PÁGINA ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // Obtener el ID del video de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        currentVideoId = urlParams.get('id');
-
-        if (currentVideoId && VIDEO_DATA[currentVideoId]) {
-            currentVideoData = VIDEO_DATA[currentVideoId];
-            LOCAL_STORAGE_ACCESS_KEY = `video_${currentVideoId}_unlocked`; // Clave única por video
-
-            // Actualizar el título y descripción de la página
-            pageTitleElement.textContent = currentVideoData.title;
-            videoDisplayTitle.textContent = currentVideoData.title;
-            videoDisplayDescription.textContent = currentVideoData.description;
-            paymentAmountDisplay.textContent = currentVideoData.amountNano;
-
-            // Verifica si el video ya fue desbloqueado en localStorage
-            if (checkLocalStorageAccess()) {
-                console.log(`Video ${currentVideoId} ya desbloqueado, mostrando contenido.`);
-                showVideoContent(); // Muestra el video directamente y lo carga con WebTorrent
-            } else {
-                console.log(`Video ${currentVideoId} no desbloqueado, mostrando muro de pago.`);
-                // Muestra el muro de pago si no está desbloqueado
-                accessSection.style.display = 'block';
-                paymentSection.style.display = 'none';
-                videoSection.style.display = 'none';
-            }
+            chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(paymentData.account);
+            chapterItemElement.querySelector('.copy-token-btn').onclick = () => copyToClipboard(paymentData.token);
+            unlockChapterBtn.disabled = true; // Deshabilitar si ya hay un pago en curso
+            amountInput.disabled = true; // Deshabilitar el input de monto
         } else {
-            // Si no hay ID o el ID no es válido, redirigir o mostrar un mensaje de error
-            console.error('ID de video no encontrado o inválido en la URL.');
-            alert('Video no encontrado o ID inválido. Redirigiendo a la página principal.');
-            window.location.href = 'index.html'; // Redirigir a la página principal
-            // Ocultar todo y mostrar un mensaje de error
-            accessSection.style.display = 'none';
-            paymentSection.style.display = 'none';
-            videoSection.style.display = 'none';
-            document.body.innerHTML = '<h1>Error: Video no disponible.</h1><p>Por favor, regresa a la <a href="index.html">página principal</a>.</p>';
+            chapterPaymentDetails.classList.add('hidden');
+            unlockChapterBtn.disabled = false; // Habilitar si no hay pago en curso
+            amountInput.disabled = false; // Habilitar el input de monto
         }
+    }
+}
+
+// Función para convertir NANO a RAW (para el QR code)
+// Nano tiene 30 decimales. 1 NANO = 10^30 RAW
+function convertNanoToRaw(nanoAmount) {
+    // Asegurarse de que Decimal.js esté cargado
+    if (typeof Decimal === 'undefined') {
+        console.error('Decimal.js no está cargado. No se puede convertir a RAW con precisión.');
+        // Fallback a una conversión simple si Decimal.js no está disponible, pero con advertencia.
+        return (parseFloat(nanoAmount) * (10**30)).toFixed(0);
+    }
+    const nanoDecimal = new Decimal(nanoAmount);
+    const rawMultiplier = new Decimal('10').pow(30);
+    return nanoDecimal.mul(rawMultiplier).toFixed(0); // toFixed(0) para asegurar que sea un entero sin notación científica
+}
+
+// Función para verificar el estado de un pago de capítulo
+async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) {
+    const paymentStatusText = chapterItemElement.querySelector('.payment-status-text');
+    const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
+    const paymentErrorDiv = chapterItemElement.querySelector('.chapter-payment-error');
+
+    loadingSpinner.classList.remove('hidden');
+    paymentErrorDiv.classList.add('hidden');
+
+    try {
+        const response = await fetch('http://localhost:8080/api/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: token }),
+        });
+
+        loadingSpinner.classList.add('hidden');
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error al verificar pago para ${chapterId}: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        paymentStatusText.textContent = data.fulfilled ? 'Completado' : 'Pendiente';
+        paymentStatusText.classList.toggle('text-green-600', data.fulfilled);
+        paymentStatusText.classList.toggle('text-orange-600', !data.fulfilled);
+        chapterItemElement.querySelector('.payment-address').textContent = data.account;
+        chapterItemElement.querySelector('.payment-token').textContent = data.token;
+
+        // Regenerar QR en caso de que la dirección o monto cambien (poco probable en verify)
+        const qrCanvas = chapterItemElement.querySelector('.qr-code');
+        const rawAmount = convertNanoToRaw(data.amount);
+        const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
+        new QRious({
+            element: qrCanvas,
+            value: nanoUri,
+            size: 180,
+            background: 'white',
+            foreground: 'black'
+        });
+
+        if (data.fulfilled) {
+            clearInterval(pollingIntervals[chapterId]); // Detener el polling
+            localStorage.setItem(chapterId + '_unlocked', 'true'); // Marcar como desbloqueado
+            localStorage.removeItem(chapterId + '_payment_token'); // Limpiar token guardado
+            updateChapterUI(chapterItemElement, true); // Actualizar UI a desbloqueado
+            console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
+        } else {
+            console.log(`Pago para ${chapterId} aún pendiente. Balance: ${data.balance}`);
+        }
+
+    } catch (error) {
+        loadingSpinner.classList.add('hidden');
+        paymentErrorDiv.textContent = `Error de verificación: ${error.message}`;
+        paymentErrorDiv.classList.remove('hidden');
+        console.error(`Error al verificar pago para ${chapterId}:`, error);
+        // Considerar detener el polling si el error es grave (ej. token inválido)
+    }
+}
+
+// Función para manejar el clic en el botón "Desbloquear Capítulo"
+async function handleUnlockChapterClick(chapterItemElement) {
+    const chapterId = chapterItemElement.dataset.chapterId;
+    const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
+    const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
+    const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
+    const chapterPaymentError = chapterItemElement.querySelector('.chapter-payment-error');
+    const amountInput = chapterItemElement.querySelector('input[type="number"]');
+
+    const amount = amountInput.value;
+    if (!amount || parseFloat(amount) <= 0) {
+        chapterPaymentError.textContent = 'Por favor, introduce un monto válido.';
+        chapterPaymentError.classList.remove('hidden');
+        return;
+    }
+
+    // Ocultar errores anteriores y mostrar spinner
+    chapterPaymentError.classList.add('hidden');
+    loadingSpinner.classList.remove('hidden');
+    unlockChapterBtn.disabled = true; // Deshabilitar botón
+    amountInput.disabled = true; // Deshabilitar input
+
+    try {
+        const response = await fetch('http://localhost:8080/api/pay', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                currency: 'NANO',
+                amount: amount, // Usar el monto del input
+                state: `unlock-chapter-${chapterId}`
+            }),
+        });
+
+        loadingSpinner.classList.add('hidden');
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error al crear pago para ${chapterId}: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        const token = data.token;
+
+        // Guardar el token en localStorage para reanudar el polling si se recarga la página
+        localStorage.setItem(chapterId + '_payment_token', token);
+
+        // Mostrar los detalles del pago
+        chapterPaymentDetails.classList.remove('hidden');
+        chapterItemElement.querySelector('.payment-address').textContent = data.account;
+        chapterItemElement.querySelector('.payment-token').textContent = token;
+        chapterItemElement.querySelector('.payment-status-text').textContent = 'Pendiente';
+        chapterItemElement.querySelector('.payment-status-text').classList.remove('text-green-600');
+        chapterItemElement.querySelector('.payment-status-text').classList.add('text-orange-600');
+
+        // Generar QR
+        const qrCanvas = chapterItemElement.querySelector('.qr-code');
+        const rawAmount = convertNanoToRaw(data.amount); // Convertir a raw para el QR
+        const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
+        new QRious({
+            element: qrCanvas,
+            value: nanoUri,
+            size: 180,
+            background: 'white',
+            foreground: 'black'
+        });
+
+        // Iniciar el polling para verificar el estado del pago
+        if (pollingIntervals[chapterId]) {
+            clearInterval(pollingIntervals[chapterId]);
+        }
+        pollingIntervals[chapterId] = setInterval(() => verifyChapterPaymentStatus(chapterId, token, chapterItemElement), 5000); // Cada 5 segundos
+
+        // Realizar una verificación inicial inmediatamente
+        verifyChapterPaymentStatus(chapterId, token, chapterItemElement);
+
+    } catch (error) {
+        loadingSpinner.classList.add('hidden');
+        unlockChapterBtn.disabled = false; // Re-habilitar botón en caso de error
+        amountInput.disabled = false; // Re-habilitar input
+        chapterPaymentError.textContent = `Error: ${error.message}`;
+        chapterPaymentError.classList.remove('hidden');
+        console.error('Error en handleUnlockChapterClick:', error);
+    }
+}
+
+// Inicializar todos los capítulos al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.chapter-item').forEach(chapterItemElement => {
+        const chapterId = chapterItemElement.dataset.chapterId;
+        const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
+        const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
+
+        // Comprobar si el capítulo ya está desbloqueado en localStorage
+        const isUnlocked = localStorage.getItem(chapterId + '_unlocked') === 'true';
+        updateChapterUI(chapterItemElement, isUnlocked);
+
+        // Si hay un token de pago guardado y el capítulo no está desbloqueado, reanudar el polling
+        const savedToken = localStorage.getItem(chapterId + '_payment_token');
+        if (!isUnlocked && savedToken) {
+            chapterPaymentDetails.classList.remove('hidden');
+            chapterItemElement.querySelector('.payment-token').textContent = savedToken;
+            chapterItemElement.querySelector('.copy-token-btn').onclick = () => copyToClipboard(savedToken);
+            // Iniciar polling con el token guardado
+            if (pollingIntervals[chapterId]) {
+                clearInterval(pollingIntervals[chapterId]);
+            }
+            pollingIntervals[chapterId] = setInterval(() => verifyChapterPaymentStatus(chapterId, savedToken, chapterItemElement), 5000);
+            verifyChapterPaymentStatus(chapterId, savedToken, chapterItemElement); // Verificación inicial
+        }
+
+        // Asignar el evento click al botón de desbloquear capítulo
+        unlockChapterBtn.addEventListener('click', () => {
+            handleUnlockChapterClick(chapterItemElement);
+        });
+
+        // Asignar eventos a los botones de copiar
+        chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(chapterItemElement.querySelector('.payment-address').textContent);
+        chapterItemElement.querySelector('.copy-token-btn').onclick = () => copyToClipboard(chapterItemElement.querySelector('.payment-token').textContent);
     });
-    
+
+    // Asegurarse de que las listas de capítulos estén contraídas al cargar
+    document.querySelectorAll('.chapters-list').forEach(list => {
+        list.style.maxHeight = '0';
+        list.style.padding = '0 20px';
+    });
+});

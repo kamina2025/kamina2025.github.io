@@ -4,192 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Series - kamina2025</title>
+    <!-- Enlace al archivo de estilos CSS -->
+    <link rel="stylesheet" href="styles.css">
     <!-- Incluye Tailwind CSS para un estilo rápido y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Librería para generar códigos QR -->
+    <!-- Librerías JavaScript externas (para index.html) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            background-color: #f0f2f5; /* Fondo gris claro */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
-        .series-grid { /* Contenedor para las tarjetas de series */
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .series-card {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 0;
-            margin: 20px;
-            width: 350px;
-            text-align: left;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Estilos para el encabezado de la serie (la parte clicable) */
-        .series-header {
-            background-color: #007bff;
-            color: white;
-            padding: 15px 20px;
-            font-size: 1.5em;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            transition: background-color 0.3s ease;
-        }
-        .series-card.expanded .series-header {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        .series-header:hover {
-            background-color: #0056b3;
-        }
-        .toggle-icon {
-            font-size: 1.2em;
-            transition: transform 0.3s ease;
-        }
-        .series-card.expanded .toggle-icon {
-            transform: rotate(45deg);
-        }
-
-        /* Estilos para la lista de capítulos (contenido desplegable) */
-        .chapters-list {
-            padding: 0 20px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
-            background-color: white;
-            flex-grow: 1;
-        }
-        .series-card.expanded .chapters-list {
-            max-height: 1000px; /* Aumentado para acomodar más contenido por capítulo */
-            padding: 20px;
-        }
-
-        /* Estilos para cada item de capítulo */
-        .chapter-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            position: relative; /* Para posicionar el mensaje de desbloqueado */
-        }
-        .chapter-item:last-child {
-            border-bottom: none;
-        }
-        .chapter-item p {
-            margin: 0 0 10px 0;
-            color: #555;
-            font-size: 1em;
-        }
-        .chapter-item .chapter-btn {
-            padding: 8px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.3s ease;
-            width: auto;
-            align-self: flex-end;
-        }
-        .chapter-item .chapter-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .chapter-item .chapter-btn:hover:not(:disabled) {
-            background-color: #218838;
-        }
-
-        /* Estilos para la sección de pago por capítulo */
-        .chapter-payment-section {
-            background-color: #f9f9f9;
-            border-top: 1px solid #eee;
-            padding: 15px;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
-        .chapter-payment-details {
-            background-color: #e0f2fe;
-            border-left: 4px solid #38b2ac;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            text-align: left;
-        }
-        .chapter-payment-error {
-            background-color: #fee2e2;
-            border-left: 4px solid #ef4444;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            color: #dc2626;
-            text-align: left;
-        }
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .chapter-unlocked-message {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #10b981; /* Verde esmeralda */
-            border-radius: 8px;
-            z-index: 10; /* Asegura que esté por encima del contenido */
-            pointer-events: none; /* Permite clics a través del mensaje */
-        }
-        .chapter-unlocked-message.hidden {
-            display: none;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
 <body>
     <h1>¡Bienvenido a Mis Series!</h1>
@@ -225,7 +47,7 @@
                             <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
                             <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
                             <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="128" height="128"></canvas>
+                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
                             <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
                             <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
                             <div class="loading-spinner hidden"></div>
@@ -257,7 +79,7 @@
                             <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
                             <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
                             <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="128" height="128"></canvas>
+                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
                             <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
                             <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
                             <div class="loading-spinner hidden"></div>
@@ -289,7 +111,7 @@
                             <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
                             <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
                             <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
-                            <canvas class="qr-code mt-3 mx-auto" width="128" height="128"></canvas>
+                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
                             <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
                             <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
                             <div class="loading-spinner hidden"></div>
@@ -302,315 +124,80 @@
         <!-- ***** FIN DE LA TARJETA DE SERIE ***** -->
 
         <!-- Otra Serie Genial -->
-       
+        <div class="series-card" id="otra-series">
+            <div class="series-header" onclick="toggleChapters('otra-series')">
+                <h2>Otra Serie Genial</h2>
+                <span class="toggle-icon">+</span>
+            </div>
+            <div class="chapters-list">
+                <div class="chapter-item" data-chapter-id="otra_serie_ep1">
+                    <p>Capítulo Piloto - Una nueva aventura comienza.</p>
+                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo Piloto</button>
+                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
+                    <div class="chapter-payment-section mt-4">
+                        <label for="amount-otra_serie_ep1" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Monto a pagar (NANO):
+                        </label>
+                        <input
+                            type="number"
+                            id="amount-otra_serie_ep1"
+                            value="0.001"
+                            step="0.000001"
+                            min="0.000001"
+                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
+                            Desbloquear Capítulo
+                        </button>
+                        <div class="chapter-payment-details hidden">
+                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
+                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
+                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
+                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
+                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
+                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
+                            <div class="loading-spinner hidden"></div>
+                            <div class="chapter-payment-error text-red-500 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-item" data-chapter-id="otra_serie_ep2">
+                    <p>Capítulo 1 - El primer gran desafío.</p>
+                    <button class="chapter-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md" disabled>Ver Capítulo 1</button>
+                    <div class="chapter-unlocked-message hidden">¡Desbloqueado! 🎉</div>
+                    <div class="chapter-payment-section mt-4">
+                        <label for="amount-otra_serie_ep2" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Monto a pagar (NANO):
+                        </label>
+                        <input
+                            type="number"
+                            id="amount-otra_serie_ep2"
+                            value="0.001"
+                            step="0.000001"
+                            min="0.000001"
+                            class="input-field shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        >
+                        <button class="unlock-chapter-btn bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out mt-3">
+                            Desbloquear Capítulo
+                        </button>
+                        <div class="chapter-payment-details hidden">
+                            <p class="mt-2 text-sm"><strong>Estado:</strong> <span class="payment-status-text font-semibold text-orange-600">Pendiente</span></p>
+                            <p class="mt-1 break-words text-sm"><strong>Dirección Nano:</strong> <span class="payment-address font-mono text-gray-800"></span></p>
+                            <p class="mt-1 break-words text-sm"><strong>Token:</strong> <span class="payment-token font-mono text-gray-800"></span></p>
+                            <canvas class="qr-code mt-3 mx-auto" width="180" height="180"></canvas>
+                            <button class="copy-address-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 shadow-sm">Copiar Dirección</button>
+                            <button class="copy-token-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded-md text-xs mt-3 ml-2 shadow-sm">Copiar Token</button>
+                            <div class="loading-spinner hidden"></div>
+                            <div class="chapter-payment-error text-red-500 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Objeto para almacenar los intervalos de polling para cada capítulo
-        const pollingIntervals = {};
-
-        // Función para copiar texto al portapapeles
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                alert('Copiado al portapapeles: ' + text);
-            } catch (err) {
-                console.error('No se pudo copiar al portapapeles:', err);
-                alert('Error al copiar. Por favor, copia manualmente: ' + text);
-            }
-            document.body.removeChild(textarea);
-        }
-
-        // Función para expandir/contraer la lista de capítulos de una serie
-        function toggleChapters(seriesCardId) {
-            const seriesCard = document.getElementById(seriesCardId);
-            const chaptersList = seriesCard.querySelector('.chapters-list');
-            const toggleIcon = seriesCard.querySelector('.toggle-icon');
-
-            if (seriesCard.classList.contains('expanded')) {
-                seriesCard.classList.remove('expanded');
-                chaptersList.style.maxHeight = '0';
-                chaptersList.style.padding = '0 20px';
-                toggleIcon.textContent = '+';
-            } else {
-                document.querySelectorAll('.series-card.expanded').forEach(card => {
-                    if (card.id !== seriesCardId) {
-                        card.classList.remove('expanded');
-                        card.querySelector('.chapters-list').style.maxHeight = '0';
-                        card.querySelector('.chapters-list').style.padding = '0 20px';
-                        card.querySelector('.toggle-icon').textContent = '+';
-                    }
-                });
-
-                seriesCard.classList.add('expanded');
-                chaptersList.style.maxHeight = chaptersList.scrollHeight + 'px';
-                chaptersList.style.padding = '20px';
-                toggleIcon.textContent = 'x';
-            }
-        }
-
-        // Función para actualizar la UI de un capítulo
-        function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
-            const chapterBtn = chapterItemElement.querySelector('.chapter-btn');
-            const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
-            const chapterPaymentSection = chapterItemElement.querySelector('.chapter-payment-section');
-            const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
-            const chapterUnlockedMessage = chapterItemElement.querySelector('.chapter-unlocked-message');
-            const amountInput = chapterItemElement.querySelector('input[type="number"]');
-
-            if (isUnlocked) {
-                chapterBtn.disabled = false;
-                chapterBtn.onclick = () => location.href = `player.html?id=${chapterItemElement.dataset.chapterId}`;
-                unlockChapterBtn.classList.add('hidden');
-                chapterPaymentSection.classList.add('hidden'); // Ocultar toda la sección de pago
-                chapterPaymentDetails.classList.add('hidden');
-                chapterUnlockedMessage.classList.remove('hidden'); // Mostrar mensaje de desbloqueado
-            } else {
-                chapterBtn.disabled = true;
-                chapterBtn.onclick = null;
-                unlockChapterBtn.classList.remove('hidden');
-                chapterPaymentSection.classList.remove('hidden'); // Mostrar la sección de pago
-                chapterUnlockedMessage.classList.add('hidden'); // Ocultar mensaje de desbloqueado
-
-                if (paymentData) {
-                    chapterPaymentDetails.classList.remove('hidden');
-                    chapterItemElement.querySelector('.payment-status-text').textContent = paymentData.fulfilled ? 'Completado' : 'Pendiente';
-                    chapterItemElement.querySelector('.payment-status-text').classList.toggle('text-green-600', paymentData.fulfilled);
-                    chapterItemElement.querySelector('.payment-status-text').classList.toggle('text-orange-600', !paymentData.fulfilled);
-                    chapterItemElement.querySelector('.payment-address').textContent = paymentData.account;
-                    chapterItemElement.querySelector('.payment-token').textContent = paymentData.token;
-
-                    // Generar QR para el pago en curso
-                    const qrCanvas = chapterItemElement.querySelector('.qr-code');
-                    const rawAmount = convertNanoToRaw(paymentData.amount); // Convertir a raw para el QR
-                    const nanoUri = `nano:${paymentData.account}?amount=${rawAmount}`;
-                    new QRious({
-                        element: qrCanvas,
-                        value: nanoUri,
-                        size: 128,
-                        background: 'white',
-                        foreground: 'black'
-                    });
-
-                    chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(paymentData.account);
-                    chapterItemElement.querySelector('.copy-token-btn').onclick = () => copyToClipboard(paymentData.token);
-                    unlockChapterBtn.disabled = true; // Deshabilitar si ya hay un pago en curso
-                    amountInput.disabled = true; // Deshabilitar el input de monto
-                } else {
-                    chapterPaymentDetails.classList.add('hidden');
-                    unlockChapterBtn.disabled = false; // Habilitar si no hay pago en curso
-                    amountInput.disabled = false; // Habilitar el input de monto
-                }
-            }
-        }
-
-        // Función para convertir NANO a RAW (para el QR code)
-        // Nano tiene 30 decimales. 1 NANO = 10^30 RAW
-        function convertNanoToRaw(nanoAmount) {
-            const nanoDecimal = new Decimal(nanoAmount);
-            const rawMultiplier = new Decimal('10').pow(30);
-            return nanoDecimal.mul(rawMultiplier).toFixed(0); // toFixed(0) para asegurar que sea un entero sin notación científica
-        }
-
-        // Función para verificar el estado de un pago de capítulo
-        async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) {
-            const paymentStatusText = chapterItemElement.querySelector('.payment-status-text');
-            const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
-            const paymentErrorDiv = chapterItemElement.querySelector('.chapter-payment-error');
-
-            loadingSpinner.classList.remove('hidden');
-            paymentErrorDiv.classList.add('hidden');
-
-            try {
-                const response = await fetch('http://localhost:8080/api/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: token }),
-                });
-
-                loadingSpinner.classList.add('hidden');
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Error al verificar pago para ${chapterId}: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-
-                paymentStatusText.textContent = data.fulfilled ? 'Completado' : 'Pendiente';
-                paymentStatusText.classList.toggle('text-green-600', data.fulfilled);
-                paymentStatusText.classList.toggle('text-orange-600', !data.fulfilled);
-                chapterItemElement.querySelector('.payment-address').textContent = data.account;
-                chapterItemElement.querySelector('.payment-token').textContent = data.token;
-
-                // Regenerar QR en caso de que la dirección o monto cambien (poco probable en verify)
-                const qrCanvas = chapterItemElement.querySelector('.qr-code');
-                const rawAmount = convertNanoToRaw(data.amount);
-                const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-                new QRious({
-                    element: qrCanvas,
-                    value: nanoUri,
-                    size: 128,
-                    background: 'white',
-                    foreground: 'black'
-                });
-
-                if (data.fulfilled) {
-                    clearInterval(pollingIntervals[chapterId]); // Detener el polling
-                    localStorage.setItem(chapterId + '_unlocked', 'true'); // Marcar como desbloqueado
-                    localStorage.removeItem(chapterId + '_payment_token'); // Limpiar token guardado
-                    updateChapterUI(chapterItemElement, true); // Actualizar UI a desbloqueado
-                    console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
-                } else {
-                    console.log(`Pago para ${chapterId} aún pendiente. Balance: ${data.balance}`);
-                }
-
-            } catch (error) {
-                loadingSpinner.classList.add('hidden');
-                paymentErrorDiv.textContent = `Error de verificación: ${error.message}`;
-                paymentErrorDiv.classList.remove('hidden');
-                console.error(`Error al verificar pago para ${chapterId}:`, error);
-                // Considerar detener el polling si el error es grave (ej. token inválido)
-            }
-        }
-
-        // Función para manejar el clic en el botón "Desbloquear Capítulo"
-        async function handleUnlockChapterClick(chapterItemElement) {
-            const chapterId = chapterItemElement.dataset.chapterId;
-            const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
-            const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
-            const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
-            const chapterPaymentError = chapterItemElement.querySelector('.chapter-payment-error');
-            const amountInput = chapterItemElement.querySelector('input[type="number"]');
-
-            const amount = amountInput.value;
-            if (!amount || parseFloat(amount) <= 0) {
-                chapterPaymentError.textContent = 'Por favor, introduce un monto válido.';
-                chapterPaymentError.classList.remove('hidden');
-                return;
-            }
-
-            // Ocultar errores anteriores y mostrar spinner
-            chapterPaymentError.classList.add('hidden');
-            loadingSpinner.classList.remove('hidden');
-            unlockChapterBtn.disabled = true; // Deshabilitar botón
-            amountInput.disabled = true; // Deshabilitar input
-
-            try {
-                const response = await fetch('http://localhost:8080/api/pay', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        currency: 'NANO',
-                        amount: amount, // Usar el monto del input
-                        state: `unlock-chapter-${chapterId}`
-                    }),
-                });
-
-                loadingSpinner.classList.add('hidden');
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Error al crear pago para ${chapterId}: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                const token = data.token;
-
-                // Guardar el token en localStorage para reanudar el polling si se recarga la página
-                localStorage.setItem(chapterId + '_payment_token', token);
-
-                // Mostrar los detalles del pago
-                chapterPaymentDetails.classList.remove('hidden');
-                chapterItemElement.querySelector('.payment-address').textContent = data.account;
-                chapterItemElement.querySelector('.payment-token').textContent = token;
-                chapterItemElement.querySelector('.payment-status-text').textContent = 'Pendiente';
-                chapterItemElement.querySelector('.payment-status-text').classList.remove('text-green-600');
-                chapterItemElement.querySelector('.payment-status-text').classList.add('text-orange-600');
-
-                // Generar QR
-                const qrCanvas = chapterItemElement.querySelector('.qr-code');
-                const rawAmount = convertNanoToRaw(data.amount); // Convertir a raw para el QR
-                const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-                new QRious({
-                    element: qrCanvas,
-                    value: nanoUri,
-                    size: 128,
-                    background: 'white',
-                    foreground: 'black'
-                });
-
-                // Iniciar el polling para verificar el estado del pago
-                if (pollingIntervals[chapterId]) {
-                    clearInterval(pollingIntervals[chapterId]);
-                }
-                pollingIntervals[chapterId] = setInterval(() => verifyChapterPaymentStatus(chapterId, token, chapterItemElement), 5000); // Cada 5 segundos
-
-                // Realizar una verificación inicial inmediatamente
-                verifyChapterPaymentStatus(chapterId, token, chapterItemElement);
-
-            } catch (error) {
-                loadingSpinner.classList.add('hidden');
-                unlockChapterBtn.disabled = false; // Re-habilitar botón en caso de error
-                amountInput.disabled = false; // Re-habilitar input
-                chapterPaymentError.textContent = `Error: ${error.message}`;
-                chapterPaymentError.classList.remove('hidden');
-                console.error('Error en handleUnlockChapterClick:', error);
-            }
-        }
-
-        // Inicializar todos los capítulos al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            // Cargar la librería Decimal.js para manejo preciso de números
-            const decimalScript = document.createElement('script');
-            decimalScript.src = "https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js";
-            decimalScript.onload = () => {
-                // Una vez que Decimal.js esté cargado, podemos inicializar los capítulos
-                document.querySelectorAll('.chapter-item').forEach(chapterItemElement => {
-                    const chapterId = chapterItemElement.dataset.chapterId;
-                    const unlockChapterBtn = chapterItemElement.querySelector('.unlock-chapter-btn');
-                    const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
-
-                    // Comprobar si el capítulo ya está desbloqueado en localStorage
-                    const isUnlocked = localStorage.getItem(chapterId + '_unlocked') === 'true';
-                    updateChapterUI(chapterItemElement, isUnlocked);
-
-                    // Si hay un token de pago guardado y el capítulo no está desbloqueado, reanudar el polling
-                    const savedToken = localStorage.getItem(chapterId + '_payment_token');
-                    if (!isUnlocked && savedToken) {
-                        chapterPaymentDetails.classList.remove('hidden');
-                        chapterItemElement.querySelector('.payment-token').textContent = savedToken;
-                        chapterItemElement.querySelector('.copy-token-btn').onclick = () => copyToClipboard(savedToken);
-                        // Iniciar polling con el token guardado
-                        if (pollingIntervals[chapterId]) {
-                            clearInterval(pollingIntervals[chapterId]);
-                        }
-                        pollingIntervals[chapterId] = setInterval(() => verifyChapterPaymentStatus(chapterId, savedToken, chapterItemElement), 5000);
-                        verifyChapterPaymentStatus(chapterId, savedToken, chapterItemElement); // Verificación inicial
-                    }
-
-                    // Asignar el evento click al botón de desbloquear capítulo
-                    unlockChapterBtn.addEventListener('click', () => {
-                        handleUnlockChapterClick(chapterItemElement);
-                    });
-
-                    // Asegurarse de que las listas de capítulos estén contraídas al cargar
-                    document.querySelectorAll('.chapters-list').forEach(list => {
-                        list.style.maxHeight = '0';
-                        list.style.padding = '0 20px';
-                    });
-                });
-            };
-            document.head.appendChild(decimalScript);
-        });
-    </script>
+    <!-- Enlace al archivo de script JavaScript principal -->
+    <script src="script.js"></script>
 </body>
 </html>
