@@ -38,25 +38,25 @@ function convertNanoToRaw(nanoAmount) {
 
 // Función para actualizar la UI de un capítulo
 function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
-    const chapterActionButton = chapterItemElement.querySelector('.chapter-action-btn'); // Nuevo selector
+    const chapterActionButton = chapterItemElement.querySelector('.chapter-action-btn');
     const chapterPaymentSection = chapterItemElement.querySelector('.chapter-payment-section');
     const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
     const chapterUnlockedMessage = chapterItemElement.querySelector('.chapter-unlocked-message');
     const amountInput = chapterItemElement.querySelector('input[type="number"]');
-    const qrCanvas = chapterItemElement.querySelector('.qr-code'); // Obtener el elemento QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
 
     if (isUnlocked) {
         chapterActionButton.textContent = 'Ver Capítulo';
         chapterActionButton.disabled = false;
-        chapterPaymentSection.classList.add('hidden'); // Ocultar toda la sección de pago
+        chapterPaymentSection.classList.add('hidden');
         chapterPaymentDetails.classList.add('hidden');
-        chapterUnlockedMessage.classList.remove('hidden'); // Mostrar mensaje de desbloqueado
-        amountInput.disabled = true; // Deshabilitar el input de monto una vez desbloqueado
+        chapterUnlockedMessage.classList.remove('hidden');
+        amountInput.disabled = true;
     } else {
-        chapterActionButton.textContent = 'Ver Capítulo'; // Siempre dice "Ver Capítulo"
-        chapterActionButton.disabled = false; // Siempre habilitado para iniciar el proceso
-        chapterPaymentSection.classList.remove('hidden'); // Mostrar la sección de pago
-        chapterUnlockedMessage.classList.add('hidden'); // Ocultar mensaje de desbloqueado
+        chapterActionButton.textContent = 'Ver Capítulo';
+        chapterActionButton.disabled = false;
+        chapterPaymentSection.classList.remove('hidden');
+        chapterUnlockedMessage.classList.add('hidden');
 
         if (paymentData) {
             chapterPaymentDetails.classList.remove('hidden');
@@ -66,31 +66,40 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
             chapterItemElement.querySelector('.payment-address').textContent = paymentData.account;
             
             // Generar QR para el pago en curso
-            const rawAmount = convertNanoToRaw(paymentData.amount); // Convertir a raw para el QR
+            const rawAmount = convertNanoToRaw(paymentData.amount);
             const nanoUri = `nano:${paymentData.account}?amount=${rawAmount}`;
-            // Limpiar cualquier QR anterior y generar uno nuevo
-            if (qrCanvas) { // Asegurarse de que el elemento existe
-                qrCanvas.innerHTML = ''; // Limpiar contenido anterior del QR
-                new QRious({
-                    element: qrCanvas,
-                    value: nanoUri,
-                    size: 180,
-                    background: 'white',
-                    foreground: 'black'
-                });
-                qrCanvas.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+            
+            if (qrCanvasDiv) {
+                qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
+                console.log(`DEBUG updateChapterUI: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
+                try {
+                    new QRious({
+                        element: qrCanvasDiv, // Renderizar al div
+                        value: nanoUri,
+                        size: 180,
+                        background: 'white',
+                        foreground: 'black'
+                    });
+                    qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+                    console.log(`DEBUG updateChapterUI: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
+                } catch (qrError) {
+                    console.error(`ERROR updateChapterUI: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
+                }
+            } else {
+                console.error(`ERROR updateChapterUI: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
             }
 
             chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(paymentData.account);
-            chapterActionButton.disabled = true; // Deshabilitar el botón si ya hay un pago en curso
-            amountInput.disabled = true; // Deshabilitar el input de monto
+            chapterActionButton.disabled = true;
+            amountInput.disabled = true;
         } else {
             chapterPaymentDetails.classList.add('hidden');
-            if (qrCanvas) {
-                qrCanvas.classList.add('hidden'); // Ocultar el contenedor del QR si no hay pago
+            if (qrCanvasDiv) {
+                qrCanvasDiv.classList.add('hidden'); // Ocultar el contenedor del QR si no hay pago
+                qrCanvasDiv.innerHTML = ''; // Limpiar el QR al ocultar
             }
-            chapterActionButton.disabled = false; // Habilitar si no hay pago en curso
-            amountInput.disabled = false; // Habilitar el input de monto
+            chapterActionButton.disabled = false;
+            amountInput.disabled = false;
         }
     }
 }
@@ -100,7 +109,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
     const paymentStatusText = chapterItemElement.querySelector('.payment-status-text');
     const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
     const paymentErrorDiv = chapterItemElement.querySelector('.chapter-payment-error');
-    const qrCanvas = chapterItemElement.querySelector('.qr-code'); // Obtener el elemento QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
 
     loadingSpinner.classList.remove('hidden');
     paymentErrorDiv.classList.add('hidden');
@@ -131,32 +140,40 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
         // Regenerar QR en caso de que la dirección o monto cambien (poco probable en verify)
         const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        if (qrCanvas) { // Asegurarse de que el elemento existe
-            qrCanvas.innerHTML = ''; // Limpiar contenido anterior del QR
-            new QRious({
-                element: qrCanvas,
-                value: nanoUri,
-                size: 180,
-                background: 'white',
-                foreground: 'black'
-            });
-            qrCanvas.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+        if (qrCanvasDiv) {
+            qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
+            console.log(`DEBUG verifyChapterPaymentStatus: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
+            try {
+                new QRious({
+                    element: qrCanvasDiv,
+                    value: nanoUri,
+                    size: 180,
+                    background: 'white',
+                    foreground: 'black'
+                });
+                qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+                console.log(`DEBUG verifyChapterPaymentStatus: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
+            } catch (qrError) {
+                console.error(`ERROR verifyChapterPaymentStatus: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
+            }
+        } else {
+            console.error(`ERROR verifyChapterPaymentStatus: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
         }
 
 
         if (data.fulfilled) {
-            clearInterval(pollingIntervals[chapterId]); // Detener el polling
-            localStorage.setItem(chapterId + '_unlocked', 'true'); // Marcar como desbloqueado
+            clearInterval(pollingIntervals[chapterId]);
+            localStorage.setItem(chapterId + '_unlocked', 'true');
             console.log(`DEBUG series.js: localStorage.setItem("${chapterId}_unlocked", "true") ejecutado.`);
             console.log(`DEBUG series.js: Valor de localStorage.getItem("${chapterId}_unlocked") es: "${localStorage.getItem(chapterId + '_unlocked')}"`);
-            localStorage.removeItem(chapterId + '_payment_token'); // Limpiar token guardado
-            updateChapterUI(chapterItemElement, true); // Actualizar UI a desbloqueado
+            localStorage.removeItem(chapterId + '_payment_token');
+            updateChapterUI(chapterItemElement, true);
             console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
 
             // --- REDIRECCIÓN AUTOMÁTICA DESPUÉS DE LA CONFIRMACIÓN ---
             setTimeout(() => {
-                location.href = `player/player.html?id=${chapterId}&unlocked=true`; // Añadimos &unlocked=true
-            }, 1500); // Redirigir después de 1.5 segundos para mostrar el mensaje
+                location.href = `player/player.html?id=${chapterId}&unlocked=true`;
+            }, 1500);
             // --- FIN REDIRECCIÓN AUTOMÁTICA ---
 
         } else {
@@ -175,7 +192,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
 }
 
 // Función para manejar el clic en el botón "Ver Capítulo"
-async function handleChapterActionClick(chapterItemElement) { // Renombrado de handleUnlockChapterClick
+async function handleChapterActionClick(chapterItemElement) {
     const chapterId = chapterItemElement.dataset.chapterId;
     const isUnlocked = localStorage.getItem(chapterId + '_unlocked') === 'true';
     const chapterActionButton = chapterItemElement.querySelector('.chapter-action-btn');
@@ -183,13 +200,13 @@ async function handleChapterActionClick(chapterItemElement) { // Renombrado de h
     const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
     const chapterPaymentError = chapterItemElement.querySelector('.chapter-payment-error');
     const amountInput = chapterItemElement.querySelector('input[type="number"]');
-    const qrCanvas = chapterItemElement.querySelector('.qr-code'); // Obtener el elemento QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
 
     if (isUnlocked) {
         // Si ya está desbloqueado, redirige directamente
         console.log(`Capítulo ${chapterId} ya desbloqueado. Redirigiendo.`);
         location.href = `player/player.html?id=${chapterId}&unlocked=true`;
-        return; // Salir de la función
+        return;
     }
 
     // Si no está desbloqueado, inicia el proceso de pago
@@ -203,8 +220,8 @@ async function handleChapterActionClick(chapterItemElement) { // Renombrado de h
     // Ocultar errores anteriores y mostrar spinner
     chapterPaymentError.classList.add('hidden');
     loadingSpinner.classList.remove('hidden');
-    chapterActionButton.disabled = true; // Deshabilitar botón
-    amountInput.disabled = true; // Deshabilitar input
+    chapterActionButton.disabled = true;
+    amountInput.disabled = true;
 
     try {
         const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/pay`, {
@@ -214,7 +231,7 @@ async function handleChapterActionClick(chapterItemElement) { // Renombrado de h
             },
             body: JSON.stringify({
                 currency: 'NANO',
-                amount: amount, // Usar el monto del input
+                amount: amount,
                 state: `unlock-chapter-${chapterId}`
             }),
         });
@@ -240,18 +257,26 @@ async function handleChapterActionClick(chapterItemElement) { // Renombrado de h
         chapterItemElement.querySelector('.payment-status-text').classList.add('text-orange-600');
 
         // Generar QR
-        const rawAmount = convertNanoToRaw(data.amount); // Convertir a raw para el QR
+        const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        if (qrCanvas) { // Asegurarse de que el elemento existe
-            qrCanvas.innerHTML = ''; // Limpiar contenido anterior del QR
-            new QRious({
-                element: qrCanvas,
-                value: nanoUri,
-                size: 180,
-                background: 'white',
-                foreground: 'black'
-            });
-            qrCanvas.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+        if (qrCanvasDiv) {
+            qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
+            console.log(`DEBUG handleChapterActionClick: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
+            try {
+                new QRious({
+                    element: qrCanvasDiv,
+                    value: nanoUri,
+                    size: 180,
+                    background: 'white',
+                    foreground: 'black'
+                });
+                qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+                console.log(`DEBUG handleChapterActionClick: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
+            } catch (qrError) {
+                console.error(`ERROR handleChapterActionClick: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
+            }
+        } else {
+            console.error(`ERROR handleChapterActionClick: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
         }
 
 
@@ -266,8 +291,8 @@ async function handleChapterActionClick(chapterItemElement) { // Renombrado de h
 
     } catch (error) {
         loadingSpinner.classList.add('hidden');
-        chapterActionButton.disabled = false; // Re-habilitar botón en caso de error
-        amountInput.disabled = false; // Re-habilitar input
+        chapterActionButton.disabled = false;
+        amountInput.disabled = false;
         chapterPaymentError.textContent = `Error: ${error.message}`;
         chapterPaymentError.classList.remove('hidden');
         console.error('Error en handleChapterActionClick:', error);
@@ -307,7 +332,7 @@ function renderChapters(seriesId) {
 
                     <div class="chapter-payment-details bg-gray-600 p-4 rounded-md mt-4 hidden">
                         <p class="text-gray-300 mb-2">Estado del Pago: <span class="payment-status-text font-semibold"></span></p>
-                        <p class="text-300 mb-2">Dirección de Pago: <span class="payment-address font-mono text-sm break-all"></span> 
+                        <p class="text-gray-300 mb-2">Dirección de Pago: <span class="payment-address font-mono text-sm break-all"></span> 
                             <button class="copy-address-btn bg-gray-500 hover:bg-gray-400 text-white text-xs py-1 px-2 rounded-md ml-2">Copiar</button>
                         </p>
                         <!-- Token de Pago ELIMINADO del HTML generado -->
@@ -318,9 +343,9 @@ function renderChapters(seriesId) {
             chaptersListContainer.appendChild(chapterItemElement);
 
             // Asignar eventos y verificar estado
-            const chapterActionButton = chapterItemElement.querySelector('.chapter-action-btn'); // Nuevo selector
+            const chapterActionButton = chapterItemElement.querySelector('.chapter-action-btn');
             chapterActionButton.addEventListener('click', () => {
-                handleChapterActionClick(chapterItemElement); // Llamar a la nueva función unificada
+                handleChapterActionClick(chapterItemElement);
             });
 
             // Asignar eventos a los botones de copiar (solo para la dirección)
