@@ -126,7 +126,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
     paymentErrorDiv.classList.add('hidden');
 
     try {
-        const response = await fetch('http://localhost:8080/api/verify', {
+        const response = await fetch('https://1dc66a0a95a1.ngrok-free.app/api/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ async function handleUnlockChapterClick(chapterItemElement) {
     amountInput.disabled = true; // Deshabilitar input
 
     try {
-        const response = await fetch('http://localhost:8080/api/pay', {
+        const response = await fetch('https://1dc66a0a95a1.ngrok-free.app/api/pay', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
