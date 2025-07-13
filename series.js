@@ -52,6 +52,10 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
         chapterPaymentDetails.classList.add('hidden');
         chapterUnlockedMessage.classList.remove('hidden');
         amountInput.disabled = true;
+        if (qrCanvasDiv) { // Ocultar y limpiar QR si está desbloqueado
+            qrCanvasDiv.classList.add('hidden');
+            qrCanvasDiv.innerHTML = '';
+        }
     } else {
         chapterActionButton.textContent = 'Ver Capítulo';
         chapterActionButton.disabled = false;
