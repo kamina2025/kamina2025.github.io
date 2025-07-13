@@ -56,7 +56,6 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
 
     if (isUnlocked) {
         chapterBtn.disabled = false;
-        // Importante: El enlace ahora apunta a la subcarpeta 'player'
         chapterBtn.onclick = () => location.href = `player/player.html?id=${chapterItemElement.dataset.chapterId}`;
         unlockChapterBtn.classList.add('hidden');
         chapterPaymentSection.classList.add('hidden'); // Ocultar toda la sección de pago
@@ -166,6 +165,13 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
             localStorage.removeItem(chapterId + '_payment_token'); // Limpiar token guardado
             updateChapterUI(chapterItemElement, true); // Actualizar UI a desbloqueado
             console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
+
+            // --- REDIRECCIÓN AUTOMÁTICA DESPUÉS DE LA CONFIRMACIÓN ---
+            setTimeout(() => {
+                location.href = `player/player.html?id=${chapterId}`;
+            }, 1500); // Redirigir después de 1.5 segundos para mostrar el mensaje
+            // --- FIN REDIRECCIÓN AUTOMÁTICA ---
+
         } else {
             console.log(`Pago para ${chapterId} aún pendiente. Balance: ${data.balance}`);
         }

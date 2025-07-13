@@ -6,12 +6,12 @@
     <title id="page-title">Cargando Video...</title>
     <!-- Enlace al archivo de estilos CSS para el reproductor -->
     <link rel="stylesheet" href="player-styles.css">
-    <!-- Incluye Tailwind CSS para un estilo rápido y moderno (opcional, si quieres usar clases Tailwind aquí) -->
+    <!-- Incluye Tailwind CSS para un estilo rápido y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Librerías JavaScript externas (para player.html) -->
+    <!-- Librerías JavaScript externas -->
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.1.2/webtorrent.min.js"></script>
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+    <!-- Ya no necesitamos parse.min.js aquí si verificamos directamente con accept-nano -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
@@ -21,20 +21,21 @@
         <p id="video-display-description" class="description"></p>
 
         <!-- Sección de Acceso / Muro de Pago -->
+        <!-- Esta sección se mostrará si el capítulo no está desbloqueado y no hay un pago en curso -->
         <div id="access-section" class="access-section">
-            <p>Para ver este capítulo, por favor, realiza un pago de <span id="payment-amount-display"></span> NANO.</p>
-            <button id="payButton">Pagar para Ver</button>
+            <p>Este capítulo requiere ser desbloqueado para su visualización.</p>
+            <p>Por favor, regresa a la <a href="../index.html" class="text-blue-600 hover:underline">página principal</a> para desbloquearlo.</p>
             <p id="errorMessage" class="error-message"></p>
         </div>
 
-        <!-- Sección de Pago (oculta inicialmente) -->
-        <div id="payment-section" class="payment-section">
-            <h2>Detalles del Pago</h2>
-            <p>Envía <span id="amountToPay"></span> NANO a la siguiente dirección:</p>
+        <!-- Sección de Pago (oculta inicialmente, se mostrará si hay un token de pago pendiente) -->
+        <div id="payment-section" class="payment-section hidden">
+            <h2>Pago Pendiente</h2>
+            <p>Envía <span id="amountToPay"></span> NANO a la siguiente dirección para desbloquear:</p>
             <p id="payment-address"></p>
             <div id="qr-code"></div>
             <p id="paymentStatusMessage" class="status-message"></p>
-            <button id="checkPaymentButton">Verificar Pago Manualmente</button>
+            <button id="checkPaymentButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md mt-3">Verificar Pago Manualmente</button>
         </div>
 
         <!-- Sección del Video (oculta inicialmente) -->

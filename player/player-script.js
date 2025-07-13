@@ -23,23 +23,25 @@ const VIDEO_DATA = {
         description: 'Una emocionante nueva serie que te dejará al borde de tu asiento.',
         magnetLink: 'magnet:?xt=urn:btih:YOUR_MAGNET_LINK_OTRA_SERIE_AQUI&dn=Otra+Serie+Cap+1.mp4&tr=...', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL!
         amountNano: 0.002
+    },
+    'otra_serie_ep2': {
+        title: 'Otra Serie Genial - Capítulo 1',
+        description: 'El primer gran desafío en esta nueva saga.',
+        magnetLink: 'magnet:?xt=urn:btih:YOUR_MAGNET_LINK_OTRA_SERIE_EP2_AQUI&dn=Otra+Serie+Cap+2.mp4&tr=...', // <--- ¡REEMPLAZA CON EL MAGNET LINK REAL!
+        amountNano: 0.002
     }
 };
 
 // --- Variables para el video actual ---
 let currentVideoId = null;
 let currentVideoData = null;
-let LOCAL_STORAGE_ACCESS_KEY = null; // Se generará dinámicamente por video
+let LOCAL_STORAGE_ACCESS_KEY = null; // Clave para el estado de desbloqueo en localStorage
+let LOCAL_STORAGE_PAYMENT_TOKEN_KEY = null; // Clave para el token de pago en localStorage
 
 // --- COMIENZO DE LA LÓGICA WEBTORRENT ---
-// Elementos HTML para el reproductor y el estado de WebTorrent
 const webTorrentPlayerContainer = document.getElementById('webtorrent-player-container');
 const webTorrentStatusDiv = document.getElementById('webtorrent-status');
 
-/**
- * Función para inicializar y cargar el video WebTorrent.
- * Usa currentVideoData.magnetLink para cargar el video correcto.
- */
 function initializeAndLoadWebTorrentVideo() {
     if (!currentVideoData || !currentVideoData.magnetLink) {
         console.error('No se pudo cargar el video: Datos del video o enlace magnet no disponibles.');
@@ -53,8 +55,12 @@ function initializeAndLoadWebTorrentVideo() {
         return;
     }
 
+    // Limpiar cualquier cliente WebTorrent anterior para evitar conflictos
+    if (window.webtorrentClient) {
+        window.webtorrentClient.destroy();
+    }
     const client = new WebTorrent({
-        tracker: {}, // Puedes añadir trackers si los conoces
+        tracker: {},
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' },
@@ -63,6 +69,7 @@ function initializeAndLoadWebTorrentVideo() {
             { urls: 'stun:stun4.l.google.com:19302' }
         ]
     });
+    window.webtorrentClient = client; // Guarda el cliente en el objeto window para poder destruirlo
 
     client.on('error', (err) => {
         console.error('WebTorrent Error:', err);
@@ -72,7 +79,7 @@ function initializeAndLoadWebTorrentVideo() {
     webTorrentPlayerContainer.innerHTML = 'Cargando metadatos del video...';
     webTorrentStatusDiv.textContent = 'Iniciando descarga del torrent...';
 
-    client.add(currentVideoData.magnetLink, (torrent) => { // Usa el magnet link del video actual
+    client.add(currentVideoData.magnetLink, (torrent) => {
         console.log('Cliente descargando:', torrent.infoHash);
         webTorrentStatusDiv.textContent = `Descargando: ${torrent.name}`;
 
@@ -104,25 +111,14 @@ function initializeAndLoadWebTorrentVideo() {
         }
     });
 }
-
 // --- FIN DE LA LÓGICA WEBTORRENT ---
-
-// --- CONFIGURACIÓN DE BACK4APP ---
-// ¡REEMPLAZA ESTOS VALORES CON TUS PROPIAS CLAVES DE BACK4APP!
-const APP_ID = "QfKOG4dLQfCGa8b9IV8Y8HcNhiLC9jQjkKAxLUes"; // <-- NUEVO Application ID
-const JAVASCRIPT_KEY = "v5QjDpaPAD8FRN1cmZoXqpQ9Fg2vpxOSsCejq8qr"; // <-- NUEVO JavaScript Key
-
-// Inicializa Parse SDK
-Parse.initialize(APP_ID, JAVASCRIPT_KEY);
-Parse.serverURL = 'https://parseapi.back4app.com/'; // Asegúrate de que esta URL sea correcta
 
 // --- REFERENCIAS A ELEMENTOS DEL DOM ---
 const pageTitleElement = document.getElementById('page-title');
 const videoDisplayTitle = document.getElementById('video-display-title');
 const videoDisplayDescription = document.getElementById('video-display-description');
-const paymentAmountDisplay = document.getElementById('payment-amount-display');
+const paymentAmountDisplay = document.getElementById('payment-amount-display'); // Ya no se usa para mostrar monto, pero se mantiene si se quiere reintroducir
 
-const payButton = document.getElementById('payButton');
 const accessSection = document.getElementById('access-section');
 const paymentSection = document.getElementById('payment-section');
 const videoSection = document.getElementById('video-section');
@@ -133,7 +129,7 @@ const paymentStatusMessage = document.getElementById('paymentStatusMessage');
 const checkPaymentButton = document.getElementById('checkPaymentButton');
 const errorMessage = document.getElementById('errorMessage');
 
-let currentPaymentId = null; // Para almacenar el ID del pago actual
+let currentPaymentToken = null; // Para almacenar el token de pago actual
 let checkPaymentInterval = null; // Para el intervalo de verificación de pago
 
 /**
@@ -141,9 +137,9 @@ let checkPaymentInterval = null; // Para el intervalo de verificación de pago
  * Esta función también inicia la carga del video WebTorrent.
  */
 function showVideoContent() {
-    accessSection.style.display = 'none';
-    paymentSection.style.display = 'none';
-    videoSection.style.display = 'block';
+    accessSection.classList.add('hidden'); // Oculta la sección de acceso
+    paymentSection.classList.add('hidden'); // Oculta la sección de pago
+    videoSection.classList.remove('hidden'); // Muestra la sección de video
 
     // *** LLAMADA A LA FUNCIÓN WEBTORRENT CUANDO EL VIDEO ES DESBLOQUEADO ***
     initializeAndLoadWebTorrentVideo();
@@ -155,7 +151,6 @@ function showVideoContent() {
  * @returns {boolean} - true si ya está desbloqueado, false en caso contrario.
  */
 function checkLocalStorageAccess() {
-    // Verifica si la clave de acceso única para este video existe en localStorage
     return localStorage.getItem(LOCAL_STORAGE_ACCESS_KEY) === 'true';
 }
 
@@ -164,50 +159,54 @@ function checkLocalStorageAccess() {
  */
 function saveAccessToLocalStorage() {
     localStorage.setItem(LOCAL_STORAGE_ACCESS_KEY, 'true');
+    localStorage.removeItem(LOCAL_STORAGE_PAYMENT_TOKEN_KEY); // Limpiar el token una vez desbloqueado
 }
 
 // Función para convertir NANO a RAW (para el QR code)
 // Nano tiene 30 decimales. 1 NANO = 10^30 RAW
 function convertNanoToRaw(nanoAmount) {
-    // Asegurarse de que Decimal.js esté cargado
     if (typeof Decimal === 'undefined') {
         console.error('Decimal.js no está cargado. No se puede convertir a RAW con precisión.');
-        // Fallback a una conversión simple si Decimal.js no está disponible, pero con advertencia.
         return (parseFloat(nanoAmount) * (10**30)).toFixed(0);
     }
     const nanoDecimal = new Decimal(nanoAmount);
     const rawMultiplier = new Decimal('10').pow(30);
-    return nanoDecimal.mul(rawMultiplier).toFixed(0); // toFixed(0) para asegurar que sea un entero sin notación científica
+    return nanoDecimal.mul(rawMultiplier).toFixed(0);
 }
 
-// --- FUNCIÓN PARA SOLICITAR EL PAGO ---
-payButton.addEventListener('click', async () => {
-    errorMessage.textContent = '';
-    payButton.disabled = true;
+// --- FUNCIÓN PARA VERIFICAR EL ESTADO DEL PAGO DIRECTAMENTE CON ACCEPT-NANO ---
+async function checkPaymentStatus(token) {
+    if (!token) {
+        console.error("No hay token de pago para verificar.");
+        return;
+    }
+
     paymentStatusMessage.className = 'status-message status-pending';
-    paymentStatusMessage.textContent = 'Solicitando dirección de pago...';
+    paymentStatusMessage.textContent = 'Verificando pago...';
+    checkPaymentButton.disabled = true;
 
     try {
-        // Esta llamada a Parse.Cloud.run('requestVideoPayment') asume que tienes
-        // una función Cloud Code en Back4App que se comunica con tu accept-nano.
-        // Si estás usando directamente el endpoint de accept-nano, la llamada sería diferente.
-        // Para este ejemplo, mantendremos la estructura con Parse.Cloud.run.
-        const result = await Parse.Cloud.run('requestVideoPayment', {
-            videoId: currentVideoId, // Usa el ID del video actual
-            amountNano: currentVideoData.amountNano // Usa el monto del video actual
+        const response = await fetch('http://localhost:8080/api/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: token }),
         });
 
-        const { paymentAddress, expectedAmountNano, paymentId } = result;
-        currentPaymentId = paymentId;
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error al verificar pago: ${response.status} - ${errorText}`);
+        }
 
-        amountToPaySpan.textContent = expectedAmountNano;
-        paymentAddressSpan.textContent = paymentAddress;
+        const data = await response.json();
+
+        amountToPaySpan.textContent = data.amount;
+        paymentAddressSpan.textContent = data.account;
 
         // Generar QR Code
-        // La URL del QR debe ser 'nano:dirección?amount=cantidad_en_raw'
-        const rawAmount = convertNanoToRaw(expectedAmountNano);
-        const nanoUri = `nano:${paymentAddress}?amount=${rawAmount}`;
-
+        const rawAmount = convertNanoToRaw(data.amount);
+        const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
         qrCodeDiv.innerHTML = ''; // Limpiar cualquier QR anterior
         new QRCode(qrCodeDiv, {
             text: nanoUri,
@@ -218,70 +217,36 @@ payButton.addEventListener('click', async () => {
             correctLevel : QRCode.CorrectLevel.H
         });
 
-        accessSection.style.display = 'none';
-        paymentSection.style.display = 'block';
-        checkPaymentButton.style.display = 'block';
-
-        paymentStatusMessage.textContent = 'Por favor, envía el pago. Verificando automáticamente...';
-
-        // Limpiar cualquier intervalo anterior para evitar duplicados
-        if (checkPaymentInterval) {
-            clearInterval(checkPaymentInterval);
-        }
-        checkPaymentInterval = setInterval(checkPaymentStatus, 10000); // Polling cada 10 segundos
-
-        // Realizar una verificación inicial inmediatamente
-        checkPaymentStatus();
-
-    } catch (error) {
-        console.error('Error al solicitar pago:', error);
-        errorMessage.textContent = `Error: ${error.message || 'No se pudo obtener la dirección de pago.'}`;
-        payButton.disabled = false;
-        paymentStatusMessage.textContent = '';
-    }
-});
-
-// --- FUNCIÓN PARA VERIFICAR EL ESTADO DEL PAGO ---
-async function checkPaymentStatus() {
-    if (!currentPaymentId) return;
-
-    paymentStatusMessage.className = 'status-message status-pending';
-    paymentStatusMessage.textContent = 'Verificando pago...';
-    checkPaymentButton.disabled = true;
-
-    try {
-        // Esta llamada a Parse.Cloud.run('checkPaymentStatus') asume que tienes
-        // una función Cloud Code en Back4App que se comunica con tu accept-nano.
-        // Si estás usando directamente el endpoint de accept-nano, la llamada sería diferente.
-        // Para este ejemplo, mantendremos la estructura con Parse.Cloud.run.
-        const result = await Parse.Cloud.run('checkPaymentStatus', {
-            paymentId: currentPaymentId
-        });
-
-        if (result.status === 'completed') {
-            clearInterval(checkPaymentInterval);
+        if (data.fulfilled) {
+            clearInterval(checkPaymentInterval); // Detener el polling
             paymentStatusMessage.className = 'status-message status-completed';
-            paymentStatusMessage.textContent = `¡Pago confirmado! Recibido: ${result.amountReceivedNano} NANO.`;
-
-            saveAccessToLocalStorage();
-            showVideoContent();
+            paymentStatusMessage.textContent = `¡Pago confirmado! Recibido: ${data.balance} NANO.`;
+            saveAccessToLocalStorage(); // Marcar como desbloqueado
+            showVideoContent(); // Muestra el video
         } else {
             paymentStatusMessage.className = 'status-message status-pending';
             paymentStatusMessage.textContent = 'Pago pendiente. Esperando confirmación...';
+            // Si el token no está fulfilled pero ya ha expirado, podríamos manejarlo aquí
+            // if (data.remainingSeconds <= 0) { /* handle expired */ }
         }
     } catch (error) {
         console.error('Error al verificar pago:', error);
         errorMessage.textContent = `Error al verificar: ${error.message || 'Error desconocido.'}`;
-        clearInterval(checkPaymentInterval);
-        paymentStatusMessage.textContent = 'Error al verificar pago.';
+        clearInterval(checkPaymentInterval); // Detener el polling en caso de error grave
+        paymentStatusMessage.textContent = 'Error al verificar pago. Intenta de nuevo.';
         paymentStatusMessage.className = 'status-message';
     } finally {
         checkPaymentButton.disabled = false;
     }
 }
 
-// Event listener para el botón de verificación manual
-checkPaymentButton.addEventListener('click', checkPaymentStatus);
+// Event listener para el botón de verificación manual (si existe y es visible)
+if (checkPaymentButton) {
+    checkPaymentButton.addEventListener('click', () => {
+        checkPaymentStatus(currentPaymentToken);
+    });
+}
+
 
 // --- LÓGICA DE INICIALIZACIÓN AL CARGAR LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -291,34 +256,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentVideoId && VIDEO_DATA[currentVideoId]) {
         currentVideoData = VIDEO_DATA[currentVideoId];
-        LOCAL_STORAGE_ACCESS_KEY = `video_${currentVideoId}_unlocked`; // Clave única por video
+        LOCAL_STORAGE_ACCESS_KEY = `video_${currentVideoId}_unlocked`;
+        LOCAL_STORAGE_PAYMENT_TOKEN_KEY = `video_${currentVideoId}_payment_token`;
 
-        // Actualizar el título y descripción de la página
         pageTitleElement.textContent = currentVideoData.title;
         videoDisplayTitle.textContent = currentVideoData.title;
         videoDisplayDescription.textContent = currentVideoData.description;
-        paymentAmountDisplay.textContent = currentVideoData.amountNano;
 
-        // Verifica si el video ya fue desbloqueado en localStorage
         if (checkLocalStorageAccess()) {
+            // Si ya está desbloqueado, muestra el video directamente
             console.log(`Video ${currentVideoId} ya desbloqueado, mostrando contenido.`);
-            showVideoContent(); // Muestra el video directamente y lo carga con WebTorrent
+            showVideoContent();
         } else {
-            console.log(`Video ${currentVideoId} no desbloqueado, mostrando muro de pago.`);
-            // Muestra el muro de pago si no está desbloqueado
-            accessSection.style.display = 'block';
-            paymentSection.style.display = 'none';
-            videoSection.style.display = 'none';
+            // Si no está desbloqueado, intenta recuperar un token de pago pendiente
+            currentPaymentToken = localStorage.getItem(LOCAL_STORAGE_PAYMENT_TOKEN_KEY);
+
+            if (currentPaymentToken) {
+                // Si hay un token de pago pendiente, muestra la sección de pago y comienza a verificar
+                console.log(`Video ${currentVideoId} tiene un pago pendiente, reanudando verificación.`);
+                accessSection.classList.add('hidden');
+                paymentSection.classList.remove('hidden');
+                videoSection.classList.add('hidden');
+
+                // Limpiar cualquier intervalo anterior para evitar duplicados
+                if (checkPaymentInterval) {
+                    clearInterval(checkPaymentInterval);
+                }
+                checkPaymentInterval = setInterval(() => checkPaymentStatus(currentPaymentToken), 5000); // Polling cada 5 segundos
+                checkPaymentStatus(currentPaymentToken); // Verificación inicial inmediata
+            } else {
+                // Si no está desbloqueado y no hay token pendiente, muestra la sección de acceso
+                console.log(`Video ${currentVideoId} no desbloqueado y sin pago pendiente.`);
+                accessSection.classList.remove('hidden');
+                paymentSection.classList.add('hidden');
+                videoSection.classList.add('hidden');
+                // Aquí podrías mostrar el monto que costaría desbloquearlo
+                accessSection.querySelector('p').textContent = `Este capítulo requiere ser desbloqueado para su visualización. El costo es de ${currentVideoData.amountNano} NANO.`;
+            }
         }
     } else {
-        // Si no hay ID o el ID no es válido, redirigir o mostrar un mensaje de error
         console.error('ID de video no encontrado o inválido en la URL.');
+        // Si no hay ID o es inválido, redirige a la página principal
         alert('Video no encontrado o ID inválido. Redirigiendo a la página principal.');
-        window.location.href = '../index.html'; // Redirigir a la página principal (subir un nivel)
-        // Ocultar todo y mostrar un mensaje de error
-        accessSection.style.display = 'none';
-        paymentSection.style.display = 'none';
-        videoSection.style.display = 'none';
+        window.location.href = '../index.html';
         document.body.innerHTML = '<h1>Error: Video no disponible.</h1><p>Por favor, regresa a la <a href="../index.html">página principal</a>.</p>';
     }
 });
