@@ -38,12 +38,11 @@
             <div id="chapters-list-container">
                 <!-- Los capítulos se cargarán aquí dinámicamente -->
                 <!-- Estructura de un capítulo (generada por series.js) -->
-                <!-- Esta es la estructura que series.js construirá para cada capítulo: -->
                 <!--
                 <div class="chapter-item bg-gray-700 rounded-lg p-4 mb-4 shadow-md" data-chapter-id="vigilante_s1_ep1">
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="text-xl font-semibold text-white">Capítulo 1: El Comienzo</h4>
-                        <button class="chapter-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300" disabled>
+                        <button class="chapter-action-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
                             Ver Capítulo
                         </button>
                     </div>
@@ -52,9 +51,6 @@
                     </div>
                     <div class="chapter-payment-section">
                         <p class="text-gray-300 mb-3">Costo: <input type="number" step="0.000001" value="0.001" class="w-24 p-1 rounded bg-gray-600 text-white border border-gray-500 mr-2"> NANO</p>
-                        <button class="unlock-chapter-btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">
-                            Desbloquear Capítulo
-                        </button>
                         <div class="loading-spinner hidden mt-3 mx-auto w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                         <p class="chapter-payment-error text-red-500 mt-3 hidden"></p>
 
@@ -63,13 +59,8 @@
                             <p class="text-gray-300 mb-2">Dirección de Pago: <span class="payment-address font-mono text-sm break-all"></span> 
                                 <button class="copy-address-btn bg-gray-500 hover:bg-gray-400 text-white text-xs py-1 px-2 rounded-md ml-2">Copiar</button>
                             </p>
-                            
-                            {{-- ELIMINADO: La línea del Token de Pago --}}
-                            {{-- <p class="text-gray-300 mb-2">Token de Pago: <span class="payment-token font-mono text-sm break-all"></span> 
-                                <button class="copy-token-btn bg-gray-500 hover:bg-gray-400 text-white text-xs py-1 px-2 rounded-md ml-2">Copiar</button>
-                            </p> --}}
-
-                            <div class="qr-code flex justify-center mt-4 mb-2"></div>
+                            {{-- Token de Pago ELIMINADO --}}
+                            <div class="qr-code flex justify-center mt-4 mb-2"></div> {{-- QR RE-AÑADIDO --}}
                         </div>
                     </div>
                 </div>
