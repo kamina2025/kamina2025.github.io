@@ -217,7 +217,7 @@ async function checkPaymentStatus(token) {
     checkPaymentButton.disabled = true;
 
     try {
-        const response = await fetch('https://1dc66a0a95a1.ngrok-free.app/api/verify', {
+        const response = await fetch('https://fa20bb3b1e8a.ngrok-free.app/api/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
