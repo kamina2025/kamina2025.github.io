@@ -38,7 +38,7 @@ function convertNanoToRaw(nanoAmount) {
 
 // Función para generar y mostrar el QR (AHORA USA qrcode.js)
 function generateAndShowQR(qrCanvasDiv, nanoUri, chapterId) {
-    if (typeof QRCode === 'undefined') { // Verificar QRCode en lugar de QRious
+    if (typeof QRCode === 'undefined') {
         console.error(`ERROR QR: QRCode (qrcode.js) no está definido. No se puede generar el QR para ${chapterId}.`);
         if (qrCanvasDiv) {
             qrCanvasDiv.innerHTML = '<p class="text-red-400 text-center text-sm">Error: QR no disponible. Recarga la página.</p>';
@@ -51,17 +51,29 @@ function generateAndShowQR(qrCanvasDiv, nanoUri, chapterId) {
         qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
         console.log(`DEBUG QR: Intentando generar QR para ${chapterId} con qrcode.js. Valor: ${nanoUri}`);
         try {
-            // Usar la API de qrcode.js: new QRCode(elemento, opciones)
             new QRCode(qrCanvasDiv, {
                 text: nanoUri,
                 width: 180,
                 height: 180,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H // Nivel de corrección de errores
+                correctLevel : QRCode.CorrectLevel.H
             });
-            qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+            qrCanvasDiv.classList.remove('hidden');
             console.log(`DEBUG QR: QR generado y visible para ${chapterId} con qrcode.js.`);
+            
+            // --- NUEVOS LOGS DE DEPURACIÓN PARA VERIFICAR CONTENIDO ---
+            setTimeout(() => { // Pequeño retraso para que el DOM se actualice
+                console.log(`DEBUG QR: Contenido de qrCanvasDiv para ${chapterId} después de QRCode():`, qrCanvasDiv.innerHTML);
+                const firstChild = qrCanvasDiv.firstElementChild;
+                if (firstChild) {
+                    console.log(`DEBUG QR: Primer hijo de qrCanvasDiv:`, firstChild.tagName, 'Computed Style:', window.getComputedStyle(firstChild).display, window.getComputedStyle(firstChild).width, window.getComputedStyle(firstChild).height);
+                } else {
+                    console.log(`DEBUG QR: qrCanvasDiv para ${chapterId} está vacío después de QRCode().`);
+                }
+            }, 50); // Pequeño retraso
+            // --- FIN NUEVOS LOGS DE DEPURACIÓN ---
+
         } catch (qrError) {
             console.error(`ERROR QR: qrcode.js falló para ${chapterId}:`, qrError);
             qrCanvasDiv.innerHTML = '<p class="text-red-400 text-center text-sm">Error al generar QR. Intenta de nuevo.</p>';
@@ -108,7 +120,7 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
             
             const rawAmount = convertNanoToRaw(paymentData.amount);
             const nanoUri = `nano:${paymentData.account}?amount=${rawAmount}`;
-            generateAndShowQR(qrCanvasDiv, nanoUri, chapterItemElement.dataset.chapterId); // Llamada a la función unificada
+            generateAndShowQR(qrCanvasDiv, nanoUri, chapterItemElement.dataset.chapterId);
 
             chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(paymentData.account);
             chapterActionButton.disabled = true;
@@ -160,7 +172,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
         
         const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId); // Llamada a la función unificada
+        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId);
 
 
         if (data.fulfilled) {
@@ -253,7 +265,7 @@ async function handleChapterActionClick(chapterItemElement) {
 
         const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId); // Llamada a la función unificada
+        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId);
 
 
         if (pollingIntervals[chapterId]) {

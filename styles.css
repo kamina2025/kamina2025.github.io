@@ -1,4 +1,4 @@
-/* styles.css - Versión Final con Corrección QR */
+/* styles.css - Versión FINAL con Corrección QR Definitiva */
 
 /* Estilos globales para el cuerpo (mínimos, Tailwind maneja la mayoría) */
 body {
@@ -82,21 +82,21 @@ body {
 /* --- REGLAS CRÍTICAS PARA EL QR --- */
 /* Asegura que el contenedor del QR tenga un tamaño y sea visible */
 .qr-code {
-    /* Asegura que el display sea block o flex para que tenga dimensiones */
-    display: flex; 
+    display: flex; /* O 'block' si no necesitas flexbox para centrar */
     justify-content: center; /* Centrar el QR */
     align-items: center;
-    /* Asegura que tenga un tamaño mínimo, aunque QRious lo ajusta */
     min-width: 180px; 
     min-height: 180px;
-    /* Añade un borde o fondo para depuración si es necesario (puedes quitarlo después) */
-    /* border: 1px solid red; */ 
-    /* background-color: lightblue; */
+    /* Puedes descomentar estas líneas para depuración visual: */
+    /* border: 2px solid green; */ 
+    /* background-color: #f0f0f0; */
 }
 
-/* Asegura que el canvas generado por QRious sea visible */
-.qr-code canvas {
-    display: block; /* Asegura que el canvas no sea inline y pueda tener dimensiones */
+/* Asegura que el canvas o la imagen generada por qrcode.js sea visible */
+.qr-code canvas,
+.qr-code img { /* Añadido img por si qrcode.js genera una imagen */
+    display: block; /* Asegura que el elemento no sea inline y pueda tener dimensiones */
     max-width: 100%; /* Evita desbordamientos */
     height: auto; /* Mantiene la proporción */
+    margin: 0 auto; /* Centrar si el padre es block */
 }
