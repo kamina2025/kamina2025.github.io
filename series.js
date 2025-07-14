@@ -29,12 +29,48 @@ function copyToClipboard(text) {
 function convertNanoToRaw(nanoAmount) {
     if (typeof Decimal === 'undefined') {
         console.error('Decimal.js no está cargado. No se puede convertir a RAW con precisión.');
+        // Fallback si Decimal.js no está disponible (menos preciso)
         return (parseFloat(nanoAmount) * (10**30)).toFixed(0);
     }
     const nanoDecimal = new Decimal(nanoAmount);
     const rawMultiplier = new Decimal('10').pow(30);
     return nanoDecimal.mul(rawMultiplier).toFixed(0);
 }
+
+// Función para generar y mostrar el QR
+function generateAndShowQR(qrCanvasDiv, nanoUri, chapterId) {
+    if (typeof QRious === 'undefined') {
+        console.error(`ERROR QR: QRious no está definido. No se puede generar el QR para ${chapterId}.`);
+        if (qrCanvasDiv) {
+            qrCanvasDiv.innerHTML = '<p class="text-red-400 text-center text-sm">Error: QR no disponible. Recarga la página.</p>';
+            qrCanvasDiv.classList.remove('hidden');
+        }
+        return;
+    }
+
+    if (qrCanvasDiv) {
+        qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
+        console.log(`DEBUG QR: Intentando generar QR para ${chapterId}. Valor: ${nanoUri}`);
+        try {
+            new QRious({
+                element: qrCanvasDiv, // Renderizar al div
+                value: nanoUri,
+                size: 180,
+                background: 'white',
+                foreground: 'black'
+            });
+            qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
+            console.log(`DEBUG QR: QR generado y visible para ${chapterId}.`);
+        } catch (qrError) {
+            console.error(`ERROR QR: QRious falló para ${chapterId}:`, qrError);
+            qrCanvasDiv.innerHTML = '<p class="text-red-400 text-center text-sm">Error al generar QR. Intenta de nuevo.</p>';
+            qrCanvasDiv.classList.remove('hidden');
+        }
+    } else {
+        console.error(`ERROR QR: Elemento QR canvas (div.qr-code) no encontrado para ${chapterId}.`);
+    }
+}
+
 
 // Función para actualizar la UI de un capítulo
 function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
@@ -43,7 +79,7 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
     const chapterPaymentDetails = chapterItemElement.querySelector('.chapter-payment-details');
     const chapterUnlockedMessage = chapterItemElement.querySelector('.chapter-unlocked-message');
     const amountInput = chapterItemElement.querySelector('input[type="number"]');
-    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code');
 
     if (isUnlocked) {
         chapterActionButton.textContent = 'Ver Capítulo';
@@ -72,26 +108,7 @@ function updateChapterUI(chapterItemElement, isUnlocked, paymentData = null) {
             // Generar QR para el pago en curso
             const rawAmount = convertNanoToRaw(paymentData.amount);
             const nanoUri = `nano:${paymentData.account}?amount=${rawAmount}`;
-            
-            if (qrCanvasDiv) {
-                qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
-                console.log(`DEBUG updateChapterUI: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
-                try {
-                    new QRious({
-                        element: qrCanvasDiv, // Renderizar al div
-                        value: nanoUri,
-                        size: 180,
-                        background: 'white',
-                        foreground: 'black'
-                    });
-                    qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
-                    console.log(`DEBUG updateChapterUI: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
-                } catch (qrError) {
-                    console.error(`ERROR updateChapterUI: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
-                }
-            } else {
-                console.error(`ERROR updateChapterUI: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
-            }
+            generateAndShowQR(qrCanvasDiv, nanoUri, chapterItemElement.dataset.chapterId);
 
             chapterItemElement.querySelector('.copy-address-btn').onclick = () => copyToClipboard(paymentData.account);
             chapterActionButton.disabled = true;
@@ -113,7 +130,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
     const paymentStatusText = chapterItemElement.querySelector('.payment-status-text');
     const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
     const paymentErrorDiv = chapterItemElement.querySelector('.chapter-payment-error');
-    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code');
 
     loadingSpinner.classList.remove('hidden');
     paymentErrorDiv.classList.add('hidden');
@@ -144,25 +161,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
         // Regenerar QR en caso de que la dirección o monto cambien (poco probable en verify)
         const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        if (qrCanvasDiv) {
-            qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
-            console.log(`DEBUG verifyChapterPaymentStatus: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
-            try {
-                new QRious({
-                    element: qrCanvasDiv,
-                    value: nanoUri,
-                    size: 180,
-                    background: 'white',
-                    foreground: 'black'
-                });
-                qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
-                console.log(`DEBUG verifyChapterPaymentStatus: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
-            } catch (qrError) {
-                console.error(`ERROR verifyChapterPaymentStatus: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
-            }
-        } else {
-            console.error(`ERROR verifyChapterPaymentStatus: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
-        }
+        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId);
 
 
         if (data.fulfilled) {
@@ -204,7 +203,7 @@ async function handleChapterActionClick(chapterItemElement) {
     const loadingSpinner = chapterItemElement.querySelector('.loading-spinner');
     const chapterPaymentError = chapterItemElement.querySelector('.chapter-payment-error');
     const amountInput = chapterItemElement.querySelector('input[type="number"]');
-    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code'); // Obtener el div contenedor del QR
+    const qrCanvasDiv = chapterItemElement.querySelector('.qr-code');
 
     if (isUnlocked) {
         // Si ya está desbloqueado, redirige directamente
@@ -263,25 +262,7 @@ async function handleChapterActionClick(chapterItemElement) {
         // Generar QR
         const rawAmount = convertNanoToRaw(data.amount);
         const nanoUri = `nano:${data.account}?amount=${rawAmount}`;
-        if (qrCanvasDiv) {
-            qrCanvasDiv.innerHTML = ''; // Limpiar cualquier QR anterior
-            console.log(`DEBUG handleChapterActionClick: Intentando generar QR para ${chapterItemElement.dataset.chapterId}. Valor: ${nanoUri}`);
-            try {
-                new QRious({
-                    element: qrCanvasDiv,
-                    value: nanoUri,
-                    size: 180,
-                    background: 'white',
-                    foreground: 'black'
-                });
-                qrCanvasDiv.classList.remove('hidden'); // Asegurarse de que el contenedor del QR sea visible
-                console.log(`DEBUG handleChapterActionClick: QR generado y visible para ${chapterItemElement.dataset.chapterId}.`);
-            } catch (qrError) {
-                console.error(`ERROR handleChapterActionClick: QRious falló para ${chapterItemElement.dataset.chapterId}:`, qrError);
-            }
-        } else {
-            console.error(`ERROR handleChapterActionClick: Elemento QR canvas no encontrado para ${chapterItemElement.dataset.chapterId}.`);
-        }
+        generateAndShowQR(qrCanvasDiv, nanoUri, chapterId);
 
 
         // Iniciar el polling para verificar el estado del pago
