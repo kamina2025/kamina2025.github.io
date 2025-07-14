@@ -148,7 +148,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
     paymentErrorDiv.classList.add('hidden');
 
     try {
-        const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/verify`, {
+const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/verify`, { // <-- ¡CAMBIO AQUÍ!
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ async function handleChapterActionClick(chapterItemElement) {
     amountInput.disabled = true;
 
     try {
-        const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/pay`, {
+const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/pay`, { // <-- ¡CAMBIO AQUÍ!
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
