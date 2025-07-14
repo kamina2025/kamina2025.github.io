@@ -8,7 +8,7 @@
 // En su lugar, usaremos CHAPTER_DATA que viene de data.js
 
 // URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-const ACCEPT_NANO_API_BASE_URL = 'https://4c482078d56c.ngrok-free.app'; 
+const ACCEPT_NANO_API_BASE_URL = 'https://66d40d2fad2f.ngrok-free.app'; 
 
 // --- Variables para el video actual ---
 let currentVideoId = null;
