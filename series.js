@@ -6,7 +6,7 @@
 const pollingIntervals = {};
 
 // URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-const ACCEPT_NANO_API_BASE_URL = 'https://66d40d2fad2f.ngrok-free.app'; 
+const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; 
 
 // Función para copiar texto al portapapeles
 function copyToClipboard(text) {
