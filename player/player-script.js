@@ -10,12 +10,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const chapterId = urlParams.get('id');
-    const videoContainer = document.getElementById('video-container'); // <--- ID a verificar en HTML
-    const errorMessageDiv = document.getElementById('error-message'); // <--- ID a verificar en HTML
-    const videoTitleElement = document.getElementById('video-title'); // <--- ID a verificar en HTML
+    console.log(`DEBUG: chapterId extraído de la URL: "${chapterId}"`); // NUEVO LOG
+
+    const videoContainer = document.getElementById('video-container');
+    const errorMessageDiv = document.getElementById('error-message');
+    const videoTitleElement = document.getElementById('video-title');
 
     if (!chapterId) {
-        errorMessageDiv.textContent = 'Error: ID de capítulo no proporcionado.';
+        errorMessageDiv.textContent = 'Error: ID de capítulo no proporcionado en la URL.'; // Mensaje más específico
         errorMessageDiv.classList.remove('hidden');
         console.error("player-script.js: ID de capítulo no encontrado en la URL.");
         return;
@@ -23,14 +25,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Obtener el token de pago del localStorage
     const paymentToken = localStorage.getItem(chapterId + '_payment_token');
+    console.log(`DEBUG: paymentToken recuperado para ${chapterId}: "${paymentToken}"`); // NUEVO LOG
 
     if (!paymentToken) {
         errorMessageDiv.textContent = 'Acceso denegado: No se encontró token de pago para este capítulo. Por favor, desbloquea el capítulo primero.';
         errorMessageDiv.classList.remove('hidden');
         console.warn(`player-script.js: No se encontró token de pago para ${chapterId}. Redirigiendo.`);
         setTimeout(() => {
-            // Redirige a la página de la serie
-            // Necesitas extraer el seriesId del chapterId (ej. "vigilante_s1_ep1" -> "vigilante_s1")
             const seriesIdMatch = chapterId.match(/^(.*_s\d+)/);
             const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
             window.location.href = `../series.html?id=${seriesId}`;
@@ -55,14 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const data = await response.json();
+        console.log("DEBUG: Respuesta del backend para verificación de acceso:", data); // NUEVO LOG
 
         if (data.accessGranted) {
             console.log(`player-script.js: Acceso concedido para el capítulo ${chapterId}. Cargando video.`);
             errorMessageDiv.classList.add('hidden'); // Ocultar cualquier mensaje de error previo
 
-            // Obtener datos del capítulo de tu CHAPTER_DATA (asumiendo que está disponible globalmente o lo cargas)
-            // Si CHAPTER_DATA no está disponible aquí, necesitarías pasarlo o cargarlo.
-            // Por simplicidad, asumimos que CHAPTER_DATA es global o lo importas.
+            // Verificar si CHAPTER_DATA está definido y contiene el capítulo
+            console.log(`DEBUG: typeof CHAPTER_DATA: ${typeof CHAPTER_DATA}`); // NUEVO LOG
             if (typeof CHAPTER_DATA === 'undefined') {
                 console.error("CHAPTER_DATA no está definido. No se puede cargar el video.");
                 errorMessageDiv.textContent = 'Error interno: Datos del capítulo no disponibles.';
@@ -70,9 +71,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const chapter = CHAPTER_DATA[chapterId];
+            console.log(`DEBUG: CHAPTER_DATA['${chapterId}']:`, chapter); // NUEVO LOG
+
             if (!chapter || !chapter.magnetLink) {
-                errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo.';
+                errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo o ID de capítulo inválido.'; // Mensaje más específico
                 errorMessageDiv.classList.remove('hidden');
+                console.error(`player-script.js: Capítulo o magnetLink no encontrado para ID: ${chapterId}.`); // NUEVO LOG
                 return;
             }
 
