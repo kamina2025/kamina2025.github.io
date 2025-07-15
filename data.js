@@ -1,7 +1,8 @@
 // data.js
 // Este archivo contiene los datos de todas las series y sus capítulos.
 
-const SERIES_DATA = {
+// Eliminamos 'const' para que estas variables sean globales
+SERIES_DATA = { // <--- ¡CAMBIADO!
     'vigilante': {
         title: 'Vigilante: Boku no Hero Academia ILLEGALS',
         description: 'Explora los orígenes y las aventuras de los vigilantes en el universo de My Hero Academia. Este spin-off te sumerge en el mundo antes de los héroes oficiales, presentando personajes carismáticos y una trama llena de acción y misterio.',
@@ -13,16 +14,10 @@ const SERIES_DATA = {
         image: 'https://placehold.co/300x450/000000/FFFFFF?text=Otra+Serie+Cover' // Placeholder de imagen de la serie
     }
     // Puedes añadir más series aquí siguiendo el mismo formato
-    /*
-    'nueva_serie_id': {
-        title: 'Título de la Nueva Serie',
-        description: 'Descripción detallada de la nueva serie.',
-        image: 'URL_DE_IMAGEN_DE_LA_NUEVA_SERIE'
-    }
-    */
 };
 
-const CHAPTER_DATA = {
+// Eliminamos 'const' para que estas variables sean globales
+CHAPTER_DATA = { // <--- ¡CAMBIADO!
     'vigilante_s1_ep1': {
         seriesId: 'vigilante',
         title: 'Capítulo 1: El Comienzo',
@@ -54,12 +49,4 @@ const CHAPTER_DATA = {
         amountNano: 0.002
     }
     // Puedes añadir más capítulos aquí, asegurándote de que cada uno tenga un 'seriesId' válido
-    /*
-    'nueva_serie_ep1': {
-        seriesId: 'nueva_serie_id', // Debe coincidir con un ID en SERIES_DATA
-        title: 'Título del Capítulo',
-        magnetLink: 'magnet:?xt=urn:btih:HASH&dn=nombre.mp4&tr=...',
-        amountNano: 0.001
-    }
-    */
 };
