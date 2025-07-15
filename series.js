@@ -62,7 +62,6 @@ function generateAndShowQR(qrCanvasDiv, nanoUri, chapterId) {
             qrCanvasDiv.classList.remove('hidden');
             console.log(`DEBUG QR: QR generado y visible para ${chapterId} con qrcode.js.`);
             
-            // --- NUEVOS LOGS DE DEPURACIÓN PARA VERIFICAR CONTENIDO ---
             setTimeout(() => { // Pequeño retraso para que el DOM se actualice
                 console.log(`DEBUG QR: Contenido de qrCanvasDiv para ${chapterId} después de QRCode():`, qrCanvasDiv.innerHTML);
                 const firstChild = qrCanvasDiv.firstElementChild;
@@ -72,7 +71,6 @@ function generateAndShowQR(qrCanvasDiv, nanoUri, chapterId) {
                     console.log(`DEBUG QR: qrCanvasDiv para ${chapterId} está vacío después de QRCode().`);
                 }
             }, 50); // Pequeño retraso
-            // --- FIN NUEVOS LOGS DE DEPURACIÓN ---
 
         } catch (qrError) {
             console.error(`ERROR QR: qrcode.js falló para ${chapterId}:`, qrError);
@@ -180,13 +178,13 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
             localStorage.setItem(chapterId + '_unlocked', 'true');
             console.log(`DEBUG series.js: localStorage.setItem("${chapterId}_unlocked", "true") ejecutado.`);
             console.log(`DEBUG series.js: Valor de localStorage.getItem("${chapterId}_unlocked") es: "${localStorage.getItem(chapterId + '_unlocked')}"`);
-            localStorage.removeItem(chapterId + '_payment_token');
+            // localStorage.removeItem(chapterId + '_payment_token'); // <--- ¡ELIMINA O COMENTA ESTA LÍNEA!
             updateChapterUI(chapterItemElement, true);
             console.log(`Capítulo ${chapterId} desbloqueado con éxito!`);
 
             // --- REDIRECCIÓN AUTOMÁTICA DESPUÉS DE LA CONFIRMACIÓN ---
             setTimeout(() => {
-                location.href = `player/player.html?id=${chapterId}`; // CORREGIDO: Pasa el chapterId
+                location.href = `player/player.html?id=${chapterId}`;
             }, 1500);
             // --- FIN REDIRECCIÓN AUTOMÁTICA ---
 
@@ -216,7 +214,7 @@ async function handleChapterActionClick(chapterItemElement) {
 
     if (isUnlocked) {
         console.log(`Capítulo ${chapterId} ya desbloqueado. Redirigiendo.`);
-        location.href = `player/player.html?id=${chapterId}`; // CORREGIDO: Elimina &unlocked=true
+        location.href = `player/player.html?id=${chapterId}`;
         return;
     }
 
