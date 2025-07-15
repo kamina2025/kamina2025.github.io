@@ -1,0 +1,21 @@
+Próximos pasos que podrías considerar:
+
+    Reemplazar los enlaces magnet de placeholder: Asegúrate de que todos los magnetLink en data.js apunten a tus videos reales.
+
+    Mejorar la interfaz de usuario: Podrías añadir un spinner o un mensaje más amigable mientras el video se está cargando con WebTorrent.
+
+    Manejo de errores de WebTorrent: Añadir una mejor gestión si un magnet link no funciona o el video no se puede cargar.
+
+    Despliegue en producción: Considerar un hosting más robusto para tu backend Go (como un VPS o un servicio de cloud) en lugar de Ngrok para una solución permanente.
+
+    Personalización de estilos: Ajustar player-styles.css y las clases de Tailwind para que el reproductor se vea exactamente como deseas.
+    
+    crear un grifo para que los usuarios pueda obtener nanos este sera finaciado usando acortadores de link los cuales dirigiran a videos de youtube los cuales subire videos de las nuevas sereis o los nuevos capitulo subido a la pagina, claro podria ser que despues de tres publicidades vista, les envie los nano a la direccion del usuario
+    
+    mejorar, el reproductor el cual permita ir al siguiente capitulo, cambiar el audio, poner subtitulos
+    
+    que el usuario tenga una billetera de custodia la cual sera la que se usara para hacer los respectivos pagos de los capitulos, teniendo la posibilidad de recargarla sea con el grifo o el mismo depositando desde otra billetera
+    
+    que pueda tener una forma de pago automatico, que si tenrmina de ver un capitulo y quiere ver el siguiente, pueda pagar sin la necesidad de hacer las acciones de volver a la lista de capitulo, darle pagar, copiar la  direccion, pegar en la billetera propia, pagar , y esperar, que solo tenga un boton que diga autopago, y listo cuando este en el siguiente capitulo en l botoon ver el pago sea automatico
+    
+    crear un sistema de recompensa para los seeder, poder pagarle por ofrecer su ancho banda
