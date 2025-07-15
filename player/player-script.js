@@ -10,14 +10,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     const chapterId = urlParams.get('id');
-    console.log(`DEBUG: chapterId extraído de la URL: "${chapterId}"`); // NUEVO LOG
+    console.log(`DEBUG: chapterId extraído de la URL: "${chapterId}"`);
 
-    const videoContainer = document.getElementById('video-container');
+    // Obtenemos una referencia al elemento <video> directamente
+    const videoPlayerElement = document.getElementById('videoPlayer'); // <--- ¡NUEVA LÍNEA! Referencia al elemento <video>
     const errorMessageDiv = document.getElementById('error-message');
     const videoTitleElement = document.getElementById('video-title');
 
     if (!chapterId) {
-        errorMessageDiv.textContent = 'Error: ID de capítulo no proporcionado en la URL.'; // Mensaje más específico
+        errorMessageDiv.textContent = 'Error: ID de capítulo no proporcionado en la URL.';
         errorMessageDiv.classList.remove('hidden');
         console.error("player-script.js: ID de capítulo no encontrado en la URL.");
         return;
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Obtener el token de pago del localStorage
     const paymentToken = localStorage.getItem(chapterId + '_payment_token');
-    console.log(`DEBUG: paymentToken recuperado para ${chapterId}: "${paymentToken}"`); // NUEVO LOG
+    console.log(`DEBUG: paymentToken recuperado para ${chapterId}: "${paymentToken}"`);
 
     if (!paymentToken) {
         errorMessageDiv.textContent = 'Acceso denegado: No se encontró token de pago para este capítulo. Por favor, desbloquea el capítulo primero.';
@@ -56,55 +57,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const data = await response.json();
-        console.log("DEBUG: Respuesta del backend para verificación de acceso:", data); // NUEVO LOG
+        console.log("DEBUG: Respuesta del backend para verificación de acceso:", data);
 
         if (data.accessGranted) {
             console.log(`player-script.js: Acceso concedido para el capítulo ${chapterId}. Cargando video.`);
             errorMessageDiv.classList.add('hidden'); // Ocultar cualquier mensaje de error previo
 
-            // Verificar si CHAPTER_DATA está definido y contiene el capítulo
-            console.log(`DEBUG: typeof CHAPTER_DATA: ${typeof CHAPTER_DATA}`); // NUEVO LOG
-            if (typeof CHAPTER_DATA === 'undefined') {
-                console.error("CHAPTER_DATA no está definido. No se puede cargar el video.");
-                errorMessageDiv.textContent = 'Error interno: Datos del capítulo no disponibles.';
-                errorMessageDiv.classList.remove('hidden');
-                return;
-            }
+            console.log(`DEBUG: typeof CHAPTER_DATA: ${typeof CHAPTER_DATA}`);
             const chapter = CHAPTER_DATA[chapterId];
-            console.log(`DEBUG: CHAPTER_DATA['${chapterId}']:`, chapter); // NUEVO LOG
+            console.log(`DEBUG: CHAPTER_DATA['${chapterId}']:`, chapter);
 
             if (!chapter || !chapter.magnetLink) {
-                errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo o ID de capítulo inválido.'; // Mensaje más específico
+                errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo o ID de capítulo inválido.';
                 errorMessageDiv.classList.remove('hidden');
-                console.error(`player-script.js: Capítulo o magnetLink no encontrado para ID: ${chapterId}.`); // NUEVO LOG
+                console.error(`player-script.js: Capítulo o magnetLink no encontrado para ID: ${chapterId}.`);
                 return;
             }
 
             videoTitleElement.textContent = chapter.title; // Actualiza el título del video
 
             // --- Lógica de WebTorrent ---
-            // Asegúrate de que WebTorrent.min.js esté cargado en player.html
             if (typeof WebTorrent === 'undefined') {
                 console.error("WebTorrent no está definido. Asegúrate de que webtorrent.min.js esté cargado en player.html.");
                 errorMessageDiv.textContent = 'Error: Reproductor de video no disponible. Recarga la página.';
                 errorMessageDiv.classList.remove('hidden');
                 return;
             }
-            const client = new WebTorrent(); // Asumiendo que WebTorrent está cargado globalmente
+            const client = new WebTorrent();
             const magnetURI = chapter.magnetLink;
 
             client.add(magnetURI, function (torrent) {
-                // Got torrent metadata!
                 console.log('Client is downloading:', torrent.infoHash);
 
-                // Display the video in the container
                 torrent.files.forEach(function (file) {
-                    // Stream the file to the video tag
                     if (file.name.endsWith('.mp4') || file.name.endsWith('.webm') || file.name.endsWith('.ogg')) {
-                        file.renderTo(videoContainer, {
+                        // Renderizar directamente en el elemento <video>
+                        file.renderTo(videoPlayerElement, { // <--- ¡CAMBIO CLAVE AQUÍ! Usamos videoPlayerElement
                             autoplay: true,
                             controls: true
                         });
+                        videoPlayerElement.classList.remove('hidden'); // <--- ¡NUEVA LÍNEA! Mostrar el video
+                        document.getElementById('video-section').classList.remove('hidden'); // Mostrar la sección del video
                     }
                 });
             });
@@ -117,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => {
                 const seriesIdMatch = chapterId.match(/^(.*_s\d+)/);
                 const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
-                window.location.href = `../series.html?id=${seriesId}`; // Redirige a la página de la serie
+                window.location.href = `../series.html?id=${seriesId}`;
             }, 3000);
         }
 
@@ -128,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => {
             const seriesIdMatch = chapterId.match(/^(.*_s\d+)/);
             const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
-            window.location.href = `../series.html?id=${seriesId}`; // Redirige a la página de la serie
+            window.location.href = `../series.html?id=${seriesId}`;
         }, 5000);
     }
 });
