@@ -3,16 +3,16 @@
 
 // URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
 // Esta URL debe ser la misma que en series.js
-const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // Reemplaza con tu URL actual de Ngrok
+const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // <--- ¡VERIFICA Y ACTUALIZA ESTA URL CON TU NGROK ACTUAL!
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("player-script.js: DOMContentLoaded - Iniciando.");
 
     const urlParams = new URLSearchParams(window.location.search);
     const chapterId = urlParams.get('id');
-    const videoContainer = document.getElementById('video-container');
-    const errorMessageDiv = document.getElementById('error-message');
-    const videoTitleElement = document.getElementById('video-title'); // Asumiendo que tienes un elemento para el título del video
+    const videoContainer = document.getElementById('video-container'); // <--- ID a verificar en HTML
+    const errorMessageDiv = document.getElementById('error-message'); // <--- ID a verificar en HTML
+    const videoTitleElement = document.getElementById('video-title'); // <--- ID a verificar en HTML
 
     if (!chapterId) {
         errorMessageDiv.textContent = 'Error: ID de capítulo no proporcionado.';
