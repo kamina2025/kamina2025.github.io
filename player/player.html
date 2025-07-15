@@ -12,20 +12,19 @@
     <!-- Librerías JavaScript externas -->
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@1.1.2/webtorrent.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1 id="video-display-title"></h1>
-        <p id="video-display-description" class="description"></p>
+        <h1 id="video-title"></h1> <!-- CORREGIDO: id="video-title" -->
+        <p id="video-display-description" class="description"></p> <!-- Este ID no se usa en player-script.js, pero lo mantengo -->
 
         <!-- Sección de Acceso / Muro de Pago -->
         <!-- Esta sección se mostrará si el capítulo NO está desbloqueado y NO hay un pago pendiente -->
         <div id="access-section" class="access-section hidden">
             <p>Este capítulo requiere ser desbloqueado para su visualización. El costo es de <span id="access-amount"></span> NANO.</p>
             <p>Por favor, regresa a la <a href="../index.html" class="text-blue-600 hover:underline">página principal</a> para desbloquearlo.</p>
-            <p id="errorMessage" class="error-message"></p>
+            <p id="error-message" class="error-message"></p> <!-- CORREGIDO: id="error-message" -->
         </div>
 
         <!-- Sección de Pago (oculta inicialmente, se mostrará si hay un token de pago pendiente) -->
@@ -41,7 +40,7 @@
         <!-- Sección del Video (oculta inicialmente) -->
         <div id="video-section" class="video-section hidden">
             <h2>Reproduciendo Video</h2>
-            <div id="webtorrent-player-container" class="webtorrent-player-container">
+            <div id="video-container" class="webtorrent-player-container"> <!-- CORREGIDO: id="video-container" -->
                 <!-- El reproductor de video se insertará aquí -->
                 <!-- Añadimos un elemento video directamente con autoplay y muted -->
                 <video id="videoPlayer" class="hidden" autoplay muted controls></video>
@@ -51,7 +50,7 @@
     </div>
 
     <!-- Enlace al archivo de script JavaScript para el reproductor -->
-   <script src="../data.js"></script>
+    <script src="../data.js"></script>
     <script src="player-script.js"></script>
 </body>
 </html>

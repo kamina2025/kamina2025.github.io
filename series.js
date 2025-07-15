@@ -6,7 +6,7 @@
 const pollingIntervals = {};
 
 // URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; 
+const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // Asegúrate de que esta URL sea la de tu Ngrok actual
 
 // Función para copiar texto al portapapeles
 function copyToClipboard(text) {
@@ -148,7 +148,7 @@ async function verifyChapterPaymentStatus(chapterId, token, chapterItemElement) 
     paymentErrorDiv.classList.add('hidden');
 
     try {
-const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/verify`, { // <-- ¡CAMBIO AQUÍ!
+        const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/verify`, { // <-- 
 
             // --- REDIRECCIÓN AUTOMÁTICA DESPUÉS DE LA CONFIRMACIÓN ---
             setTimeout(() => {
-                location.href = `player/player.html?id=${chapterId}&unlocked=true`;
+                location.href = `player/player.html?id=${chapterId}`; // CORREGIDO: Pasa el chapterId
             }, 1500);
             // --- FIN REDIRECCIÓN AUTOMÁTICA ---
 
@@ -216,7 +216,7 @@ async function handleChapterActionClick(chapterItemElement) {
 
     if (isUnlocked) {
         console.log(`Capítulo ${chapterId} ya desbloqueado. Redirigiendo.`);
-        location.href = `player/player.html?id=${chapterId}&unlocked=true`;
+        location.href = `player/player.html?id=${chapterId}`; // CORREGIDO: Elimina &unlocked=true
         return;
     }
 
@@ -233,7 +233,7 @@ async function handleChapterActionClick(chapterItemElement) {
     amountInput.disabled = true;
 
     try {
-const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/pay`, { // <-- ¡CAMBIO AQUÍ!
+        const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/pay`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
