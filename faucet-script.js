@@ -8,9 +8,9 @@ const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // <--- 
 // ¡IMPORTANTE!: Estos deben ser tus enlaces acortados reales que dirigen a videos de YouTube.
 // Por ahora, son placeholders. DEBES GENERARLOS CON TU SERVICIO DE ACORTADOR.
 const FAUCET_LINKS = [
-    { id: 'link1', url: 'https://shorte.st/YOUR_SHORTENED_LINK_1', text: 'Ver Video 1: Nueva Serie - Capítulo Piloto' },
-    { id: 'link2', url: 'https://shorte.st/YOUR_SHORTENED_LINK_2', text: 'Ver Video 2: Detrás de Escena - Vigilante' },
-    { id: 'link3', url: 'https://shorte.st/YOUR_SHORTENED_LINK_3', text: 'Ver Video 3: Próximos Lanzamientos' }
+    { id: 'link1', url: 'https://shrinkme.ink/trialerfrieren', text: 'frieren temporada 1 trailer' },
+    { id: 'link2', url: 'https://shrinkme.ink/trailersololeveling', text: 'solo leveling trailer' },
+    { id: 'link3', url: 'https://shrinkme.ink/bokuheroilegales', text: 'boku no hero ilegales trailer' }
 ];
 
 let visitedLinksCount = 0;
