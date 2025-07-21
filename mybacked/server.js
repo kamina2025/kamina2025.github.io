@@ -129,6 +129,22 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     }
 });
 
+// Ruta para obtener todos los contenidos a los que el usuario tiene acceso
+app.get('/api/user/content-access', authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const result = await db.query(
+            'SELECT content_id, content_type FROM user_content_access WHERE user_id = $1',
+            [userId]
+        );
+        // Devuelve un array de objetos { content_id, content_type }
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error al obtener acceso a contenido del usuario:', err);
+        res.status(500).json({ message: 'Error interno del servidor al obtener acceso al contenido.' });
+    }
+});
 // (Las rutas /api/credits/earn y /api/credits/spend no necesitan cambios,
 // ya que no usan email, solo userId del token)
 

@@ -5,16 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="series-page-title">Cargando Serie...</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    </head>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
 <body class="bg-gray-900 text-gray-100 font-sans">
     <header class="bg-gray-800 p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-3xl font-bold text-blue-400">Kamina Series</h1>
-            <nav>
+            <nav id="main-nav">
                 <a href="index.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
-                <a href="login.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Login</a>
-                <a href="profile.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Mi Perfil</a>
+                <a href="faucet.html" class="text-green-400 hover:text-green-300 px-3 py-2 rounded-md text-sm font-medium">¡NANO Gratis!</a>
+                
+                <!-- ¡IMPORTANTE: Este div es donde nav.js inyecta los enlaces de usuario! -->
+                <div id="user-links" class="inline-block">
+                    <!-- Los enlaces de usuario serán insertados aquí por nav.js -->
+                </div>
             </nav>
         </div>
     </header>
@@ -32,7 +36,8 @@
 
         <section id="chapters-section" class="bg-gray-800 rounded-lg shadow-lg p-6">
             <h3 class="text-3xl font-bold text-white mb-6 text-center">Capítulos</h3>
-            <div id="chapters-list-container">
+            <!-- ¡IMPORTANTE: Cambiado de 'chapters-list-container' a 'chapter-list-container' para coincidir con series.js! -->
+            <div id="chapter-list-container"> 
                 <p class="text-gray-400 text-center">Cargando capítulos...</p>
             </div>
         </section>
@@ -42,6 +47,9 @@
         <p>&copy; 2025 Kamina Series. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="data.js"></script>
-    <script src="series.js"></script> </body>
+    <!-- ¡IMPORTANTE: Agregado nav.js AQUÍ, ANTES de series.js! -->
+    <script src="data.js"></script> 
+    <script src="nav.js"></script> 
+    <script src="series.js"></script>
+</body>
 </html>
