@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 // Suponemos que el backend devuelve un objeto con un 'token'
                 if (data.token) {
-                    localStorage.setItem('jwtToken', data.token); // Almacenar el JWT
+                    localStorage.setItem('token', data.token); // Almacenar el JWT
                     localStorage.setItem('username', username); // Opcional: almacenar el nombre de usuario
                     loginMessageDiv.textContent = 'Inicio de sesión exitoso. Redirigiendo...';
                     loginMessageDiv.classList.remove('hidden');

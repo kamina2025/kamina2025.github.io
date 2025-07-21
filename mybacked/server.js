@@ -162,21 +162,34 @@ app.post('/api/credits/spend', authenticateToken, async (req, res) => {
 
     let cost;
     if (contentType === 'chapter') {
-        // Puedes obtener el costo de la tabla content_costs aquí en lugar de un valor fijo
-        // O dejarlo fijo como lo tenías, pero es mejor desde la DB
         const costResult = await db.query('SELECT credit_cost FROM content_costs WHERE content_id = $1', [contentId]);
         if (costResult.rows.length === 0) {
             return res.status(404).json({ message: `Costo para contentId ${contentId} no encontrado.` });
         }
         cost = costResult.rows[0].credit_cost;
     } else if (contentType === 'movie') {
-        cost = 2; // Ejemplo fijo para películas
+        cost = 2; // Ejemplo fijo para películas, si lo estás usando
     } else {
         return res.status(400).json({ message: 'Tipo de contenido inválido.' });
     }
 
     try {
         await db.query('BEGIN');
+
+        // *** LÓGICA AGREGADA: Verificar si el usuario ya tiene acceso ***
+        const hasAccessResult = await db.query(
+            'SELECT * FROM user_content_access WHERE user_id = $1 AND content_id = $2',
+            [userId, contentId]
+        );
+
+        if (hasAccessResult.rows.length > 0) {
+            await db.query('ROLLBACK'); // No deduzcas créditos si ya tiene acceso
+            // Opcional: Para devolver el balance actual, si quieres que el frontend lo sepa
+            const currentBalance = (await db.query('SELECT credit_balance FROM users WHERE id = $1', [userId])).rows[0].credit_balance;
+            return res.status(200).json({ message: 'Ya tienes acceso a este contenido.', newBalance: currentBalance });
+        }
+        // *** FIN LÓGICA AGREGADA ***
+
         const userResult = await db.query('SELECT credit_balance FROM users WHERE id = $1 FOR UPDATE', [userId]);
         const currentBalance = userResult.rows[0].credit_balance;
 
@@ -196,13 +209,12 @@ app.post('/api/credits/spend', authenticateToken, async (req, res) => {
             [userId, `SPEND_${contentType.toUpperCase()}`, -cost, `Desbloqueo de ${contentType} ${contentId}`]
         );
 
-        // Opcional: Registrar acceso al contenido para no cobrar dos veces
-        // Necesitarías una tabla 'user_content_access' similar a 'content_access' de la versión SQLite
-        // Si ya tienes una, inserta aquí:
-        // await db.query(
-        //     'INSERT INTO user_content_access (user_id, content_id, content_type) VALUES ($1, $2, $3) ON CONFLICT (user_id, content_id) DO NOTHING',
-        //     [userId, contentId, contentType]
-        // );
+        // *** LÓGICA AGREGADA: Insertar el registro de acceso ***
+        await db.query(
+            'INSERT INTO user_content_access (user_id, content_id, content_type) VALUES ($1, $2, $3)',
+            [userId, contentId, contentType]
+        );
+        // *** FIN LÓGICA AGREGADA ***
 
         await db.query('COMMIT');
         res.json({ message: 'Contenido desbloqueado con éxito', newBalance });
