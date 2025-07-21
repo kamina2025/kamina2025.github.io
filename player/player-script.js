@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Obtener el token JWT del usuario logueado ---
-    const jwtToken = localStorage.getItem('jwtToken');
+    const jwtToken = localStorage.getItem('token');
     console.log(`DEBUG: jwtToken recuperado: ${jwtToken ? 'Sí' : 'No'}`);
 
     if (!jwtToken) {
