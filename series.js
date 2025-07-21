@@ -1,5 +1,5 @@
 // series.js
-const BACKEND_API_BASE_URL = 'https://15c65c07dad2.ngrok-free.app'; // <--- ¡ACTUALIZA ESTA URL con tu Ngrok actual!
+const BACKEND_API_BASE_URL = 'https://fbb246e5a22e.ngrok-free.app'; // <--- ¡ACTUALIZA ESTA URL con tu Ngrok actual!
 
 document.addEventListener('DOMContentLoaded', async () => {
     const chapterListContainer = document.getElementById('chapter-list-container');
