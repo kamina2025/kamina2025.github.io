@@ -17,14 +17,18 @@ if (!JWT_SECRET) {
     process.exit(1);
 }
 
-// Configuración CORS - MUY IMPORTANTE para tu frontend en GitHub Pages
+// Configuración CORS - ¡MUY IMPORTANTE que esté al principio!
+// Vamos a usar una configuración más explícita
 const corsOptions = {
-    origin: '*', // Solo para desarrollo/test con ngrok, cambiar para producción
-    optionsSuccessStatus: 200
+    origin: '*', // Permitir cualquier origen por ahora para depuración
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Métodos permitidos
+    allowedHeaders: 'Content-Type,Authorization', // Cabeceras permitidas
+    credentials: true, // Si usas cookies o tokens con "withCredentials"
+    optionsSuccessStatus: 204 // Para las solicitudes OPTIONS/preflight
 };
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Usa el middleware CORS
 
-// Middleware para parsear JSON en el cuerpo de las solicitudes
+// Middleware para parsear JSON
 app.use(express.json());
 
 // --- Autenticación ---

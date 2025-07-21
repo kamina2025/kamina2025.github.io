@@ -2,7 +2,7 @@
 // Este script maneja la lógica de reproducción del video y la verificación de acceso.
 
 // URL base de tu nuevo backend de créditos (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-const BACKEND_API_BASE_URL = 'https://a5927ed9faa0.ngrok-free.app'; // <--- ¡VERIFICA Y ACTUALIZA ESTA URL CON TU NGROK ACTUAL!
+const BACKEND_API_BASE_URL = 'https://15c65c07dad2.ngrok-free.app'; // <--- ¡VERIFICA Y ACTUALIZA ESTA URL CON TU NGROK ACTUAL!
                                                                     // Usa la URL de ngrok que te dio tu terminal
 
 document.addEventListener('DOMContentLoaded', async () => {
