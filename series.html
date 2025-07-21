@@ -6,16 +6,15 @@
     <title id="series-page-title">Cargando Serie...</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!-- Incluye Decimal.js para manejo preciso de números Nano -->
-    <script src="https://cdn.jsdelivr.net/npm/decimal.js/decimal.min.js"></script>
-</head>
+    </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
     <header class="bg-gray-800 p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-3xl font-bold text-blue-400">Kamina Series</h1>
             <nav>
                 <a href="index.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
-                <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
+                <a href="login.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                <a href="profile.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Mi Perfil</a>
             </nav>
         </div>
     </header>
@@ -34,7 +33,6 @@
         <section id="chapters-section" class="bg-gray-800 rounded-lg shadow-lg p-6">
             <h3 class="text-3xl font-bold text-white mb-6 text-center">Capítulos</h3>
             <div id="chapters-list-container">
-                <!-- Los capítulos se cargarán aquí dinámicamente mediante series.js -->
                 <p class="text-gray-400 text-center">Cargando capítulos...</p>
             </div>
         </section>
@@ -44,11 +42,6 @@
         <p>&copy; 2025 Kamina Series. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Incluye el archivo de datos antes del script principal -->
     <script src="data.js"></script>
-    <!-- Incluye qrcode.js para generar códigos QR (¡CAMBIADO A UNPKG!) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Script para la lógica de la página de series -->
-    <script src="series.js"></script>
-</body>
+    <script src="series.js"></script> </body>
 </html>

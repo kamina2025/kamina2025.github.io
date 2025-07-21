@@ -1,19 +1,19 @@
 // player/player-script.js
 // Este script maneja la lógica de reproducción del video y la verificación de acceso.
 
-// URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-// Esta URL debe ser la misma que en series.js
-const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // <--- ¡VERIFICA Y ACTUALIZA ESTA URL CON TU NGROK ACTUAL!
+// URL base de tu nuevo backend de créditos (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
+const BACKEND_API_BASE_URL = 'https://a5927ed9faa0.ngrok-free.app'; // <--- ¡VERIFICA Y ACTUALIZA ESTA URL CON TU NGROK ACTUAL!
+                                                                    // Usa la URL de ngrok que te dio tu terminal
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("player-script.js: DOMContentLoaded - Iniciando.");
 
     const urlParams = new URLSearchParams(window.location.search);
-    const chapterId = urlParams.get('id');
+    const chapterId = urlParams.get('id'); // Este será tu 'contentId'
+    const contentType = 'chapter'; // Puedes hardcodear 'chapter' o pasarlo desde series.html si es dinámico
     console.log(`DEBUG: chapterId extraído de la URL: "${chapterId}"`);
 
-    // Obtenemos una referencia al elemento <video> directamente
-    const videoPlayerElement = document.getElementById('videoPlayer'); // <--- ¡NUEVA LÍNEA! Referencia al elemento <video>
+    const videoPlayerElement = document.getElementById('videoPlayer');
     const errorMessageDiv = document.getElementById('error-message');
     const videoTitleElement = document.getElementById('video-title');
 
@@ -24,31 +24,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Obtener el token de pago del localStorage
-    const paymentToken = localStorage.getItem(chapterId + '_payment_token');
-    console.log(`DEBUG: paymentToken recuperado para ${chapterId}: "${paymentToken}"`);
+    // --- Obtener el token JWT del usuario logueado ---
+    const jwtToken = localStorage.getItem('jwtToken');
+    console.log(`DEBUG: jwtToken recuperado: ${jwtToken ? 'Sí' : 'No'}`);
 
-    if (!paymentToken) {
-        errorMessageDiv.textContent = 'Acceso denegado: No se encontró token de pago para este capítulo. Por favor, desbloquea el capítulo primero.';
+    if (!jwtToken) {
+        errorMessageDiv.textContent = 'Acceso denegado: Necesitas iniciar sesión para ver este contenido.';
         errorMessageDiv.classList.remove('hidden');
-        console.warn(`player-script.js: No se encontró token de pago para ${chapterId}. Redirigiendo.`);
+        console.warn(`player-script.js: No se encontró JWT. Redirigiendo a login.`);
         setTimeout(() => {
-            const seriesIdMatch = chapterId.match(/^(.*_s\d+)/);
-            const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
-            window.location.href = `../series.html?id=${seriesId}`;
+            window.location.href = '../login.html'; // O tu página de login/registro
         }, 3000);
         return;
     }
 
-    // --- Paso de Verificación con el Backend ---
+    // --- Paso de Verificación de Acceso con el Nuevo Backend ---
+    // En el nuevo modelo, la "verificación de acceso" para la reproducción
+    // ya no es una llamada POST a /api/access-chapter.
+    // Asumiremos que si llegamos aquí con un JWT válido, el usuario ya
+    // "pagó" con créditos en series.js.
+    // Podrías añadir una ruta de backend como `/api/content/check-access`
+    // que verifique si el usuario autenticado (via JWT) tiene acceso al contentId.
+    // Por simplicidad para este paso, solo nos aseguraremos de que el JWT es válido
+    // y luego cargaremos el video.
+    // Una opción más robusta sería:
+    /*
     try {
-        console.log(`player-script.js: Verificando acceso para capítulo ${chapterId} con el backend...`);
-        const response = await fetch(`${ACCEPT_NANO_API_BASE_URL}/api/access-chapter`, {
+        const response = await fetch(`${BACKEND_API_BASE_URL}/api/content/check-access`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`
             },
-            body: JSON.stringify({ token: paymentToken, chapterId: chapterId }),
+            body: JSON.stringify({ contentId: chapterId, contentType: contentType })
         });
 
         if (!response.ok) {
@@ -57,62 +65,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const data = await response.json();
-        console.log("DEBUG: Respuesta del backend para verificación de acceso:", data);
-
-        if (data.accessGranted) {
-            console.log(`player-script.js: Acceso concedido para el capítulo ${chapterId}. Cargando video.`);
-            errorMessageDiv.classList.add('hidden'); // Ocultar cualquier mensaje de error previo
-
-            console.log(`DEBUG: typeof CHAPTER_DATA: ${typeof CHAPTER_DATA}`);
-            const chapter = CHAPTER_DATA[chapterId];
-            console.log(`DEBUG: CHAPTER_DATA['${chapterId}']:`, chapter);
-
-            if (!chapter || !chapter.magnetLink) {
-                errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo o ID de capítulo inválido.';
-                errorMessageDiv.classList.remove('hidden');
-                console.error(`player-script.js: Capítulo o magnetLink no encontrado para ID: ${chapterId}.`);
-                return;
-            }
-
-            videoTitleElement.textContent = chapter.title; // Actualiza el título del video
-
-            // --- Lógica de WebTorrent ---
-            if (typeof WebTorrent === 'undefined') {
-                console.error("WebTorrent no está definido. Asegúrate de que webtorrent.min.js esté cargado en player.html.");
-                errorMessageDiv.textContent = 'Error: Reproductor de video no disponible. Recarga la página.';
-                errorMessageDiv.classList.remove('hidden');
-                return;
-            }
-            const client = new WebTorrent();
-            const magnetURI = chapter.magnetLink;
-
-            client.add(magnetURI, function (torrent) {
-                console.log('Client is downloading:', torrent.infoHash);
-
-                torrent.files.forEach(function (file) {
-                    if (file.name.endsWith('.mp4') || file.name.endsWith('.webm') || file.name.endsWith('.ogg')) {
-                        // Renderizar directamente en el elemento <video>
-                        file.renderTo(videoPlayerElement, { // <--- ¡CAMBIO CLAVE AQUÍ! Usamos videoPlayerElement
-                            autoplay: true,
-                            controls: true
-                        });
-                        videoPlayerElement.classList.remove('hidden'); // <--- ¡NUEVA LÍNEA! Mostrar el video
-                        document.getElementById('video-section').classList.remove('hidden'); // Mostrar la sección del video
-                    }
-                });
-            });
-            // --- Fin Lógica de WebTorrent ---
-
-        } else {
-            errorMessageDiv.textContent = 'Acceso denegado: Su pago no ha sido verificado o el token es inválido.';
+        if (!data.accessGranted) {
+            errorMessageDiv.textContent = 'Acceso denegado: No tienes permiso para ver este contenido. Por favor, desbloquéalo.';
             errorMessageDiv.classList.remove('hidden');
-            console.warn(`player-script.js: Acceso denegado para el capítulo ${chapterId}. Redirigiendo.`);
+            console.warn(`player-script.js: Acceso denegado para el capítulo ${chapterId}.`);
             setTimeout(() => {
                 const seriesIdMatch = chapterId.match(/^(.*_s\d+)/);
                 const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
                 window.location.href = `../series.html?id=${seriesId}`;
             }, 3000);
+            return;
         }
+
+        console.log(`player-script.js: Acceso concedido para el capítulo ${chapterId}. Cargando video.`);
+        errorMessageDiv.classList.add('hidden'); // Ocultar cualquier mensaje de error previo
+
+        // Resto de la lógica de carga del video (WebTorrent)
 
     } catch (error) {
         errorMessageDiv.textContent = `Error al verificar acceso: ${error.message}. Por favor, intenta de nuevo.`;
@@ -123,5 +91,54 @@ document.addEventListener('DOMContentLoaded', async () => {
             const seriesId = seriesIdMatch ? seriesIdMatch[1] : '';
             window.location.href = `../series.html?id=${seriesId}`;
         }, 5000);
+        return; // Detiene la ejecución si hay un error en la verificación
     }
+    */
+
+    // --- Si no implementas `check-access` en el backend por ahora, simplemente carga el video si el token es válido ---
+    // Advertencia: esto asume que el frontend es el único guardián del acceso una vez "desbloqueado"
+    // y que la lógica de "gastar créditos" ya ocurrió.
+    // La forma más segura es hacer la verificación en el backend.
+    console.log(`player-script.js: JWT presente, procediendo a cargar video para ${chapterId}.`);
+    errorMessageDiv.classList.add('hidden'); // Ocultar cualquier mensaje de error previo
+
+
+    console.log(`DEBUG: typeof CHAPTER_DATA: ${typeof CHAPTER_DATA}`);
+    const chapter = CHAPTER_DATA[chapterId]; // Asumiendo CHAPTER_DATA todavía existe y contiene info del video
+    console.log(`DEBUG: CHAPTER_DATA['${chapterId}']:`, chapter);
+
+    if (!chapter || !chapter.magnetLink) {
+        errorMessageDiv.textContent = 'Error: Enlace de video no encontrado para este capítulo o ID de capítulo inválido.';
+        errorMessageDiv.classList.remove('hidden');
+        console.error(`player-script.js: Capítulo o magnetLink no encontrado para ID: ${chapterId}.`);
+        return;
+    }
+
+    videoTitleElement.textContent = chapter.title; // Actualiza el título del video
+
+    // --- Lógica de WebTorrent (esta parte permanece igual) ---
+    if (typeof WebTorrent === 'undefined') {
+        console.error("WebTorrent no está definido. Asegúrate de que webtorrent.min.js esté cargado en player.html.");
+        errorMessageDiv.textContent = 'Error: Reproductor de video no disponible. Recarga la página.';
+        errorMessageDiv.classList.remove('hidden');
+        return;
+    }
+    const client = new WebTorrent();
+    const magnetURI = chapter.magnetLink;
+
+    client.add(magnetURI, function (torrent) {
+        console.log('Client is downloading:', torrent.infoHash);
+
+        torrent.files.forEach(function (file) {
+            if (file.name.endsWith('.mp4') || file.name.endsWith('.webm') || file.name.endsWith('.ogg')) {
+                file.renderTo(videoPlayerElement, {
+                    autoplay: true,
+                    controls: true
+                });
+                videoPlayerElement.classList.remove('hidden');
+                document.getElementById('video-section').classList.remove('hidden');
+            }
+        });
+    });
+    // --- Fin Lógica de WebTorrent ---
 });

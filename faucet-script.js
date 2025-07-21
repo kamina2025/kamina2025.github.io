@@ -2,7 +2,7 @@
 // Lógica para el grifo de NANO
 
 // URL base de tu backend accept-nano (¡ACTUALIZA ESTA URL CON LA DE TU NGROK ACTUAL!)
-const ACCEPT_NANO_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // <--- ¡ACTUALIZA ESTA URL!
+const BACKEND_API_BASE_URL = 'https://92e1dc490c38.ngrok-free.app'; // <--- ¡ACTUALIZA ESTA URL!
 
 // Define los enlaces que el usuario debe visitar.
 // ¡IMPORTANTE!: Estos deben ser tus enlaces acortados reales que dirigen a videos de YouTube.

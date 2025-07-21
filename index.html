@@ -11,11 +11,12 @@
     <header class="bg-gray-800 p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-3xl font-bold text-blue-400">Kamina Series</h1>
-            <nav>
+            <nav id="main-nav">
                 <a href="index.html" class="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
-                <!-- ¡NUEVA LÍNEA! Enlace al Grifo de NANO -->
                 <a href="faucet.html" class="text-green-400 hover:text-green-300 px-3 py-2 rounded-md text-sm font-medium">¡NANO Gratis!</a>
-                <!-- Puedes añadir más enlaces de navegación aquí si es necesario -->
+                
+                <div id="auth-links" class="inline-block">
+                    </div>
             </nav>
         </div>
     </header>
@@ -24,17 +25,15 @@
         <h2 class="text-4xl font-extrabold text-center text-white mb-8">Nuestras Series</h2>
         
         <div id="series-list-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Las tarjetas de series se cargarán aquí dinámicamente -->
-        </div>
+            </div>
     </main>
 
     <footer class="bg-gray-800 p-4 text-center text-gray-400 mt-8">
         <p>&copy; 2025 Kamina Series. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Incluye el archivo de datos antes del script principal -->
     <script src="data.js"></script>
-    <!-- Script para la lógica de la página principal (listado de series) -->
     <script src="index.js"></script>
+    <script src="nav.js"></script> 
 </body>
 </html>

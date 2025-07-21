@@ -1,0 +1,3 @@
+C:\Users\imues films>psql -U myuser -d credit_system_db
+ruta de la base de datos
+y la contraseña es 123456789

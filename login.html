@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Kamina Series</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> </head>
+<body class="bg-gray-900 text-gray-100 font-sans flex items-center justify-center min-h-screen">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+        <h2 class="text-3xl font-bold text-blue-400 mb-6">Inicia Sesión en Kamina Series</h2>
+        
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <input type="text" id="loginUsername" placeholder="Nombre de usuario" required
+                       class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+            </div>
+            <div>
+                <input type="password" id="loginPassword" placeholder="Contraseña" required
+                       class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <p id="loginMessage" class="mt-4 text-sm text-red-400 hidden"></p>
+        <p class="mt-6 text-gray-400">¿No tienes una cuenta? <a href="register.html" class="text-blue-400 hover:underline">Regístrate aquí</a></p>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

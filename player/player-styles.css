@@ -1,3 +1,5 @@
+/* player-styles.css - Versión Limpia para Reproductor de Créditos */
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: #1a202c; /* bg-gray-900 */
@@ -32,81 +34,57 @@ p {
     line-height: 1.6;
 }
 
-.description {
+.description { /* Puedes eliminar esto si el p#video-display-description se elimina del HTML */
     color: #a0aec0; /* text-gray-400 */
     font-size: 0.9em;
     margin-bottom: 25px;
 }
 
-.access-section, .payment-section, .video-section {
-    background-color: #4a5568; /* bg-gray-700 */
-    padding: 25px;
-    border-radius: 8px; /* rounded-lg */
-    margin-top: 25px;
-}
+/* Eliminado: .access-section, .payment-section */
 
 .hidden {
     display: none !important; /* Asegura que se oculte */
 }
 
-.status-message {
-    font-weight: 600; /* font-semibold */
-    margin-top: 15px;
-}
-
-.status-pending {
-    color: #f6ad55; /* text-orange-400 */
-}
-
-.status-completed {
-    color: #68d391; /* text-green-400 */
-}
+/* Eliminado: .status-message, .status-pending, .status-completed (si solo usas error-message) */
 
 .error-message {
     color: #fc8181; /* text-red-400 */
     font-weight: 600;
     margin-top: 15px;
+    padding: 10px; /* Añadido padding para que el mensaje no se vea pegado */
+    border: 1px solid #fc8181; /* Borde para resaltarlo */
+    border-radius: 5px;
+    background-color: rgba(252, 129, 129, 0.1); /* Fondo ligero */
 }
 
-.qr-code {
-    margin: 20px auto;
-    border: 5px solid white;
-    border-radius: 8px;
-    width: 190px; /* Ancho del QR + borde */
-    height: 190px; /* Alto del QR + borde */
-    display: flex; /* Para centrar el canvas dentro */
-    justify-content: center;
-    align-items: center;
-}
+/* Eliminado: .qr-code */
 
 /* Estilos específicos para el reproductor de video */
-#webtorrent-player-container {
+/* Usa #video-container para ser consistente con el HTML */
+#video-container {
     background-color: black; /* Fondo negro para el reproductor */
     border-radius: 8px;
     overflow: hidden; /* Asegura que el video no se desborde */
-    position: relative; /* Para posicionar el video dentro si es necesario */
-    width: 100%; /* Ocupa todo el ancho disponible */
-    /* padding-bottom: 56.25%; */ /* Relación de aspecto 16:9 (altura es 56.25% del ancho) */
-    /* height: 0; */ /* Necesario para el padding-bottom */
-    /* Eliminamos padding-bottom y height:0 para que el video tome su tamaño */
-    height: auto; /* Permitir que el video defina la altura */
+    position: relative;
+    width: 100%;
+    height: auto;
     min-height: 300px; /* Altura mínima para que sea visible si el video tarda en cargar */
-    display: flex; /* Para centrar el video dentro */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 /* REGLAS CRÍTICAS PARA EL ELEMENTO VIDEO */
 #videoPlayer {
-    /* Forzar visibilidad y tamaño */
-    width: 100% !important; /* Forzar 100% de ancho */
-    height: auto !important; /* Permitir que el video mantenga su relación de aspecto */
-    max-height: 80vh; /* Para que no sea demasiado grande en pantallas pequeñas */
-    display: block !important; /* Asegurar que sea un elemento de bloque */
-    visibility: visible !important; /* Asegurar que sea visible */
-    opacity: 1 !important; /* Asegurar que no sea transparente */
-    background-color: black; /* Fondo negro para el video */
-    border-radius: 8px; /* Mantener bordes redondeados */
+    width: 100% !important;
+    height: auto !important;
+    max-height: 80vh;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: black;
+    border-radius: 8px;
 }
 
 .webtorrent-status {
